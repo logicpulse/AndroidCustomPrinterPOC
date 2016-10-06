@@ -1,6 +1,5 @@
 package com.logicpulse.logicpulsecustomprinter;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.URLUtil;
 
 import java.io.InputStream;
 
@@ -105,13 +103,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void actionTestDevicePrintImage() {
-
-        //String uriLocation = String.format("android.resource://%s/%s", packageName, + R.raw.image);
-
-        //if (URLUtil.isValidUrl(uriLocation)) {
-        //    Uri uri = Uri.parse(uriLocation);
-        //    customPrinterInterface.testPrintImage(uri);
-        //}
         InputStream inputStream = Utils.getInputStreamFromRawResource(this, R.raw.image);
         customPrinterInterface.testPrintImage(inputStream);
     }
