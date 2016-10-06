@@ -4,6 +4,7 @@ import android.content.Context;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -50,10 +51,14 @@ public class CustomPrinterInterface {
 
     String aPIVersion;
 
-    public CustomPrinterInterface(Context context, Bundle savedInstanceState) {
+    //Require to use findViewById here
+    private View view;
+
+    public CustomPrinterInterface(Context context, View view, Bundle savedInstanceState) {
 
         //Parameters
         this.context = context;
+        this.view = view;
         //Get Api Version
         this.aPIVersion = CustomAndroidAPI.getAPIVersion();
 
@@ -61,13 +66,13 @@ public class CustomPrinterInterface {
         hGetStatus.postDelayed(GetStatusRunnable, GETSTATUS_TIME);
 
         //Init everything
-        InitEverything(savedInstanceState);
+        InitEverything(view, savedInstanceState);
     }
 
-    private void InitEverything(Bundle savedInstanceState) {
+    private void InitEverything(View view, Bundle savedInstanceState) {
 
-        //Require to get view to use view.findViewById from outside activity
-        View view = LayoutInflater.from(context).inflate(R.layout.activity_main, null);
+////Require to get view to use view.findViewById from outside activity
+//View view = LayoutInflater.from(context).inflate(R.layout.activity_main, null);
 
         //If is the 1st time
         if (savedInstanceState == null) {
@@ -77,18 +82,21 @@ public class CustomPrinterInterface {
 
                 if ((usbDeviceList == null) || (usbDeviceList.length == 0)) {
                     //Show Error
-                    Utils.showAlertMsg(context, "Error...", "No Devices Connected...");
+                    //Utils.showAlertMsg(context, "Error...", "No Devices Connected...");
+                    Log.d(MainActivity.TAG, "Error: No Devices Connected...");
                     return;
                 }
             } catch (CustomException e) {
 
                 //Show Error
-                Utils.showAlertMsg(context, "Error...", e.getMessage());
+                //Utils.showAlertMsg(context, "Error...", e.getMessage());
+                Log.e(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
                 return;
             } catch (Exception e) {
 
                 //Show Error
-                Utils.showAlertMsg(context, "Error...", "Enum devices error...");
+                //Utils.showAlertMsg(context, "Error...", "Enum devices error...");
+                Log.e(MainActivity.TAG, String.format("Error: Enum devices error..."));
                 return;
             }
         }
@@ -131,8 +139,8 @@ public class CustomPrinterInterface {
             CheckBox ckbox;
             TextView txtView;
 
-            //Require to get view to use view.findViewById from outside activity
-            View view = LayoutInflater.from(context).inflate(R.layout.activity_main, null);
+////Require to get view to use view.findViewById from outside activity
+//View view = LayoutInflater.from(context).inflate(R.layout.activity_main, null);
 
             //If the device is open
             if (prnDevice != null) {
