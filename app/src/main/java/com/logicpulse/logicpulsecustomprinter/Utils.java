@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.InputStream;
@@ -72,5 +75,17 @@ public class Utils {
             Log.e(MainActivity.TAG, "File Reading Error", e);
         }
         return null;
+    }
+
+    public static void alarmStartPlay(Context context, Ringtone ringtone) {
+        if (ringtone != null && ! ringtone.isPlaying()) {
+            ringtone.play();
+        }
+    }
+
+    public static void alarmStopPlay(Ringtone ringtone) {
+        if (ringtone != null && ringtone.isPlaying()) {
+            ringtone.stop();
+        }
     }
 }

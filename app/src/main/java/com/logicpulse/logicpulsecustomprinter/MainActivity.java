@@ -1,5 +1,8 @@
 package com.logicpulse.logicpulsecustomprinter;
 
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,9 +17,10 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "CustomPrinterPOC";
-    public String packageName;
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
+    public String packageName;
     private CustomPrinterInterface customPrinterInterface;
+    private Ringtone ringtone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
             actionTestDevicePrintImage();
             return true;
         }
+        if (id == R.id.action_test_alarm_start_play) {
+            actionTestAlarmStart();
+            return true;
+        }
+        if (id == R.id.action_test_alarm_stop_play) {
+            actionTestAlarmStop();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -105,5 +117,13 @@ public class MainActivity extends AppCompatActivity {
     private void actionTestDevicePrintImage() {
         InputStream inputStream = Utils.getInputStreamFromRawResource(this, R.raw.image);
         customPrinterInterface.testPrintImage(inputStream);
+    }
+
+    private void actionTestAlarmStart() {
+        Utils.alarmStartPlay(this, ringtone);
+    }
+
+    private void actionTestAlarmStop() {
+        Utils.alarmStopPlay(ringtone);
     }
 }

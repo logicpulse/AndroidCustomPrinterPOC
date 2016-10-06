@@ -27,4 +27,16 @@
         android:title="@string/action_test_device_print_image"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_test_alarm_start_play"
+        android:orderInCategory="100"
+        android:title="@string/action_test_alarm_start_play"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_test_alarm_stop_play"
+        android:orderInCategory="100"
+        android:title="@string/action_test_alarm_stop_play"
+        app:showAsAction="never" />
+
 </menu>

@@ -29,6 +29,17 @@
             android:visibility="invisible" />
 
         <CheckBox
+            android:id="@+id/checkBoxPAPERJAM"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="true"
+            android:text="@string/stsPaperJam"
+            android:textSize="15sp"
+            android:visibility="invisible" />
+
+
+        <CheckBox
             android:id="@+id/checkBoxROLLING"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

@@ -3,21 +3,20 @@ package com.logicpulse.logicpulsecustomprinter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbDevice;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,31 +34,23 @@ import it.custom.printer.api.android.PrinterStatus;
 public class CustomPrinterInterface {
 
     private Context context;
-
-    private int INT_SELECT_PICTURE = 1;
-    private int GETSTATUS_TIME = 1000;        //1sec
-
+    private int GETSTATUS_TIME = 1000;
     private static UsbDevice[] usbDeviceList = null;
     private static Handler hGetStatus = new Handler();
-
+    private static ListView listDevicesView;
+    private static ArrayAdapter<String> listAdapter;
+    private static int lastDeviceSelected = -1;
+    private static int deviceSelected = -1;
+    private String lock = "lockAccess";
+    private String aPIVersion;
+    //Require to get view to use view.findViewById from outside activity
+    private View view;
+    private Ringtone ringtone;
+    //Public
     private static CustomPrinter prnDevice = null;
-
     public static CustomPrinter getPrnDevice() {
         return prnDevice;
     }
-
-    private static ListView listDevicesView;
-    private static ArrayAdapter<String> listAdapter;
-
-    private static int lastDeviceSelected = -1;
-    private static int deviceSelected = -1;
-
-    private String lock = "lockAccess";
-
-    private String aPIVersion;
-
-    //Require to get view to use view.findViewById from outside activity
-    private View view;
 
     public CustomPrinterInterface(Context context, View view, Bundle savedInstanceState) {
 
@@ -73,10 +64,14 @@ public class CustomPrinterInterface {
         hGetStatus.postDelayed(GetStatusRunnable, GETSTATUS_TIME);
 
         //Init everything
-        InitEverything(view, savedInstanceState);
+        Init(view, savedInstanceState);
     }
 
-    private void InitEverything(View view, Bundle savedInstanceState) {
+    private void Init(View view, Bundle savedInstanceState) {
+
+        //Init Ringtone
+        Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        ringtone = RingtoneManager.getRingtone(context, defaultUri);
 
         //If is the 1st time
         if (savedInstanceState == null) {
@@ -157,6 +152,10 @@ public class CustomPrinterInterface {
                         ckbox = (CheckBox) view.findViewById(R.id.checkBoxNOPAPER);
                         ckbox.setChecked(prnSts.stsNOPAPER);
 
+                        //Check it: PAPER JAM
+                        ckbox = (CheckBox) view.findViewById(R.id.checkBoxPAPERJAM);
+                        ckbox.setChecked(prnSts.stsPAPERJAM);
+
                         //Check it: PAPER ROLLING
                         ckbox = (CheckBox) view.findViewById(R.id.checkBoxROLLING);
                         ckbox.setChecked(prnSts.stsPAPERROLLING);
@@ -172,8 +171,15 @@ public class CustomPrinterInterface {
                         txtView = (TextView) view.findViewById(R.id.textPrinterName);
                         txtView.setText("Printer Name:" + printerName + " (" + prnDevice.getPrinterInfo() + ")");
 
-                        //deviceShowStatus = View.VISIBLE;
+                        //Alarm Work
+                        if (prnSts.stsNOPAPER == true || prnSts.stsPAPERJAM == true) {
+                            Utils.alarmStartPlay(context, ringtone);
+                        }
+                        else {
+                            Utils.alarmStopPlay(ringtone);
+                        }
 
+                        //deviceShowStatus = View.VISIBLE;
                     } catch (CustomException e) {
 
                     } catch (Exception e) {
@@ -184,6 +190,10 @@ public class CustomPrinterInterface {
 
             //Show / Hide Check NOPAPER
             ckbox = (CheckBox) view.findViewById(R.id.checkBoxNOPAPER);
+            ckbox.setVisibility(deviceShowStatus);
+
+            //Show / Hide Check PAPERJAM
+            ckbox = (CheckBox) view.findViewById(R.id.checkBoxPAPERJAM);
             ckbox.setVisibility(deviceShowStatus);
 
             //Show / Hide Check PAPER ROLLING
@@ -271,13 +281,13 @@ public class CustomPrinterInterface {
 
         try {
             //Fill class: NORMAL
-            fntPrinterNormal.setCharHeight(PrinterFont.FONT_SIZE_X1);                    //Height x1
+            fntPrinterNormal.setCharHeight(PrinterFont.FONT_SIZE_X1);                   //Height x1
             fntPrinterNormal.setCharWidth(PrinterFont.FONT_SIZE_X1);                    //Width x1
-            fntPrinterNormal.setEmphasized(false);                                        //No Bold
-            fntPrinterNormal.setItalic(false);                                            //No Italic
-            fntPrinterNormal.setUnderline(false);                                        //No Underline
-            fntPrinterNormal.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);    //Center
-            fntPrinterNormal.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);        //Default International Chars
+            fntPrinterNormal.setEmphasized(false);                                      //No Bold
+            fntPrinterNormal.setItalic(false);                                          //No Italic
+            fntPrinterNormal.setUnderline(false);                                       //No Underline
+            fntPrinterNormal.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);   //Center
+            fntPrinterNormal.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);      //Default International Chars
 
             //Fill class: BOLD size 2X
             fntPrinterBold2X.setCharHeight(PrinterFont.FONT_SIZE_X2);                    //Height x2
