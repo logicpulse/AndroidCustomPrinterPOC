@@ -26,6 +26,15 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
+    //http://simple.sourceforge.net/maven.php
+    //http://search.maven.org/#artifactdetails%7Corg.simpleframework%7Csimple-xml%7C2.7.1%7Cjar
+    compile ('org.simpleframework:simple-xml:2.7.1') {
+        //Required to fix: "Error:trouble processing "javax/xml/XMLConstants.class":"
+        //https://github.com/square/retrofit/issues/1431
+        exclude module: 'stax'
+        exclude module: 'stax-api'
+        exclude module: 'xpp3'
+    }
     compile files('libs/customandroidapi.jar')
     testCompile 'junit:junit:4.12'
 }

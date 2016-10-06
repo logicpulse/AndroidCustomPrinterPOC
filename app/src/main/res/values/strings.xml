@@ -8,6 +8,7 @@
     <string name="action_test_device_print_image">Print Image</string>
     <string name="action_test_alarm_start_play">Alarm Start</string>
     <string name="action_test_alarm_stop_play">Alarm Stop</string>
+    <string name="action_test_ticket">Test Ticket</string>
 
     <string name="stsNoPaper">No Paper</string>
     <string name="stsPaperJam">Paper Jam</string>
