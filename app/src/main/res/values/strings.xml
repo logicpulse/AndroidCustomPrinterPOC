@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name">LogicPulseCustomPrinter</string>
+
     <string name="action_settings">Settings</string>
 
-    <string name="action_open_printer">Open Printer</string>
-    <string name="action_test_printer">Test Printer</string>
+    <string name="action_open_device">Open Printer</string>
+    <string name="action_test_device_print_text">Test Print Text</string>
+    <string name="action_test_device_print_image">Test Print Image</string>
 
     <string name="stsNoPaper">No Paper</string>
     <string name="stsRolling">Paper Rolling</string>

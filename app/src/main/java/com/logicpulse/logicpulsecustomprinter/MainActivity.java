@@ -1,22 +1,23 @@
 package com.logicpulse.logicpulsecustomprinter;
 
-import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.URLUtil;
 
-import it.custom.printer.api.android.CustomAndroidAPI;
-import it.custom.printer.api.android.CustomPrinter;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "CustomPrinterPOC";
+    public String packageName;
+    public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
     private CustomPrinterInterface customPrinterInterface;
 
     @Override
@@ -37,9 +38,14 @@ public class MainActivity extends AppCompatActivity {
 
         View viewActivityMain = findViewById(R.id.content_main);
 
+        //Get Package Name
+        packageName = getApplicationContext().getPackageName();
+
         //Init CustomPrinterInterface
         customPrinterInterface = new CustomPrinterInterface(
-                this.getApplicationContext(),
+                //Fix for listViewDevices textColor
+                //never use getApplicationContext(). Just use your Activity as the Context
+                this /*this.getApplicationContext()*/,
                 viewActivityMain,
                 savedInstanceState
         );
@@ -70,30 +76,43 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_open_printer) {
-            actionOpenPrinter();
+        if (id == R.id.action_open_device) {
+            actionOpenDevice();
             return true;
         }
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_test_printer) {
-            actionTestPrinter();
+        if (id == R.id.action_test_device_print_text) {
+            actionTestDevicePrintText();
+            return true;
+        }
+        if (id == R.id.action_test_device_print_image) {
+            actionTestDevicePrintImage();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void actionOpenPrinter() {
+    private void actionOpenDevice() {
         //Open it
-        //CustomPrinter prnDevice = new CustomAndroidAPI().getPrinterDriverUSB(usbDevice, this);
+        customPrinterInterface.openDevice();
     }
 
-    private void actionTestPrinter() {
+    private void actionTestDevicePrintText() {
+        customPrinterInterface.testPrintText(PRINT_TEXT);
+    }
 
+    private void actionTestDevicePrintImage() {
+
+        //String uriLocation = String.format("android.resource://%s/%s", packageName, + R.raw.image);
+
+        //if (URLUtil.isValidUrl(uriLocation)) {
+        //    Uri uri = Uri.parse(uriLocation);
+        //    customPrinterInterface.testPrintImage(uri);
+        //}
+        InputStream inputStream = Utils.getInputStreamFromRawResource(this, R.raw.image);
+        customPrinterInterface.testPrintImage(inputStream);
     }
 }

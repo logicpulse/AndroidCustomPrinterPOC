@@ -1,17 +1,24 @@
 package com.logicpulse.logicpulsecustomprinter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbDevice;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -36,11 +43,12 @@ public class CustomPrinterInterface {
     private static Handler hGetStatus = new Handler();
 
     private static CustomPrinter prnDevice = null;
+
     public static CustomPrinter getPrnDevice() {
         return prnDevice;
     }
 
-    private static ListView listDevicesView ;
+    private static ListView listDevicesView;
     private static ArrayAdapter<String> listAdapter;
 
     private static int lastDeviceSelected = -1;
@@ -131,7 +139,10 @@ public class CustomPrinterInterface {
     private Runnable GetStatusRunnable = new Runnable() {
         public void run() {
             String printerName;
-            int deviceShowStatus = View.INVISIBLE;
+
+            //int deviceShowStatus = View.INVISIBLE;
+            int deviceShowStatus = View.VISIBLE;
+
             CheckBox ckbox;
             TextView txtView;
 
@@ -161,12 +172,12 @@ public class CustomPrinterInterface {
                         txtView = (TextView) view.findViewById(R.id.textPrinterName);
                         txtView.setText("Printer Name:" + printerName + " (" + prnDevice.getPrinterInfo() + ")");
 
-                        deviceShowStatus = View.VISIBLE;
+                        //deviceShowStatus = View.VISIBLE;
 
                     } catch (CustomException e) {
 
                     } catch (Exception e) {
-
+                        Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
                     }
                 }
             }
@@ -193,36 +204,27 @@ public class CustomPrinterInterface {
     };
 
     //Open the device if it isn't already opened
-    public boolean OpenDevice()
-    {
+    public boolean openDevice() {
         //Device not selected
-        if (deviceSelected == -1)
-        {
+        if (deviceSelected == -1) {
             //showAlertMsg("Error...", "No Printer Device Selected...");
             Log.d(MainActivity.TAG, "Error: No Printer Device Selected...");
             return false;
         }
 
         //If i changed the device
-        if (lastDeviceSelected != -1)
-        {
-            if (deviceSelected != lastDeviceSelected)
-            {
-                try
-                {
+        if (lastDeviceSelected != -1) {
+            if (deviceSelected != lastDeviceSelected) {
+                try {
                     //Force close
                     prnDevice.close();
-                }
-                catch(CustomException e )
-                {
+                } catch (CustomException e) {
 
                     //Show Error
                     //showAlertMsg("Error...", e.getMessage());
                     Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
                     return false;
-                }
-                catch(Exception e )
-                {
+                } catch (Exception e) {
                     //Show error
                     return false;
                 }
@@ -231,26 +233,20 @@ public class CustomPrinterInterface {
         }
 
         //If i never open it
-        if (prnDevice == null)
-        {
-            try
-            {
+        if (prnDevice == null) {
+            try {
                 //Open and connect it
                 prnDevice = new CustomAndroidAPI().getPrinterDriverUSB(usbDeviceList[deviceSelected], context);
                 //Save last device selected
                 lastDeviceSelected = deviceSelected;
                 return true;
-            }
-            catch(CustomException e )
-            {
+            } catch (CustomException e) {
 
                 //Show Error
                 //showAlertMsg("Error...", e.getMessage());
                 Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
                 return false;
-            }
-            catch(Exception e )
-            {
+            } catch (Exception e) {
                 //showAlertMsg("Error...", "Open Print Error...");
                 Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
                 //open error
@@ -262,46 +258,40 @@ public class CustomPrinterInterface {
 
     }
 
-    public void onPrintText(View view)
-    {
+    public void testPrintText(String text) {
         PrinterFont fntPrinterNormal = new PrinterFont();
         PrinterFont fntPrinterBold2X = new PrinterFont();
         String strTextToPrint;
         //open device
-        if (OpenDevice() == false)
+        if (openDevice() == false)
             return;
 
         //Get Text
-        strTextToPrint = "FOOBAR";
+        strTextToPrint = text;
 
-        try
-        {
+        try {
             //Fill class: NORMAL
-            fntPrinterNormal.setCharHeight(PrinterFont.FONT_SIZE_X1);					//Height x1
-            fntPrinterNormal.setCharWidth(PrinterFont.FONT_SIZE_X1);					//Width x1
-            fntPrinterNormal.setEmphasized(false);										//No Bold
-            fntPrinterNormal.setItalic(false);											//No Italic
-            fntPrinterNormal.setUnderline(false);										//No Underline
-            fntPrinterNormal.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);	//Center
-            fntPrinterNormal.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);		//Default International Chars
+            fntPrinterNormal.setCharHeight(PrinterFont.FONT_SIZE_X1);                    //Height x1
+            fntPrinterNormal.setCharWidth(PrinterFont.FONT_SIZE_X1);                    //Width x1
+            fntPrinterNormal.setEmphasized(false);                                        //No Bold
+            fntPrinterNormal.setItalic(false);                                            //No Italic
+            fntPrinterNormal.setUnderline(false);                                        //No Underline
+            fntPrinterNormal.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);    //Center
+            fntPrinterNormal.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);        //Default International Chars
 
             //Fill class: BOLD size 2X
-            fntPrinterBold2X.setCharHeight(PrinterFont.FONT_SIZE_X2);					//Height x2
-            fntPrinterBold2X.setCharWidth(PrinterFont.FONT_SIZE_X2);					//Width x2
-            fntPrinterBold2X.setEmphasized(true);										//Bold
-            fntPrinterBold2X.setItalic(false);											//No Italic
-            fntPrinterBold2X.setUnderline(false);										//No Underline
-            fntPrinterBold2X.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);	//Center
-            fntPrinterBold2X.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);		//Default International Chars
-        }
-        catch(CustomException e )
-        {
+            fntPrinterBold2X.setCharHeight(PrinterFont.FONT_SIZE_X2);                    //Height x2
+            fntPrinterBold2X.setCharWidth(PrinterFont.FONT_SIZE_X2);                    //Width x2
+            fntPrinterBold2X.setEmphasized(true);                                        //Bold
+            fntPrinterBold2X.setItalic(false);                                            //No Italic
+            fntPrinterBold2X.setUnderline(false);                                        //No Underline
+            fntPrinterBold2X.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);    //Center
+            fntPrinterBold2X.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);        //Default International Chars
+        } catch (CustomException e) {
             //Show Error
             //showAlertMsg("Error...", e.getMessage());
             Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
-        }
-        catch(Exception e )
-        {
+        } catch (Exception e) {
             //showAlertMsg("Error...", "Set font properties error...");
             Log.d(MainActivity.TAG, "Error: Set font properties error...");
         }
@@ -310,52 +300,108 @@ public class CustomPrinterInterface {
         // PRINT TEXT
         //***************************************************************************
 
-        synchronized (lock)
-        {
-            try
-            {
+        synchronized (lock) {
+            try {
                 //Print Text (NORMAL)
                 prnDevice.printText(strTextToPrint, fntPrinterNormal);
                 prnDevice.printTextLF(strTextToPrint, fntPrinterNormal);
                 //Print Text (BOLD size 2X)
                 prnDevice.printTextLF(strTextToPrint, fntPrinterBold2X);
-            }
-            catch(CustomException e)
-            {
+            } catch (CustomException e) {
                 //Show Error
                 //showAlertMsg("Error...", e.getMessage());
                 Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 //showAlertMsg("Error...", "Print Text Error...");
                 Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
             }
         }
     }
 
-    public void onPrintPictureClick(View view)
-    {
+    public void testPrintImage(InputStream inputStream) {
+        //open device
+        if (openDevice() == false)
+            return;
+
+        //showAlertMsg("Error...", "Select a Picture to Print...");
+        //Log.d(MainActivity.TAG, String.format("Error: Invalid Uri %s", uri.toString()));
+
+        // load image
+
+        //Create the Bitmap
+        //Bitmap image = BitmapFactory.decodeFile(selectedImagePath);
+        Bitmap image = BitmapFactory.decodeStream(inputStream);
+
+        synchronized (lock) {
+            //***************************************************************************
+            // PRINT PICTURE
+            //***************************************************************************
+
+            try {
+                //Print (Left Align and Fit to printer width)
+                prnDevice.printImage(image, CustomPrinter.IMAGE_ALIGN_TO_LEFT, CustomPrinter.IMAGE_SCALE_TO_FIT, 0);
+            } catch (CustomException e) {
+                //Show Error
+                //showAlertMsg("Error...", e.getMessage());
+                Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+            } catch (Exception e) {
+                //showAlertMsg("Error...", "Print Picture Error...");
+                Log.d(MainActivity.TAG, "Error: Print Picture Error...");
+            }
+
+            //***************************************************************************
+            // FEEDS and CUT
+            //***************************************************************************
+
+            try {
+                //Feeds (3)
+                prnDevice.feed(3);
+                //Cut (Total)
+                prnDevice.cut(CustomPrinter.CUT_TOTAL);
+            } catch (CustomException e) {
+                //Only if isn't unsupported
+                if (e.GetErrorCode() != CustomException.ERR_UNSUPPORTEDFUNCTION) {
+                    //Show Error
+                    //showAlertMsg("Error...", e.getMessage());
+                    Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+                }
+            } catch (Exception e) {
+                //showAlertMsg("Error...", "Print Picture Error...");
+                Log.d(MainActivity.TAG, "Error: Print Picture Error...");
+            }
+
+            //***************************************************************************
+            // PRESENT
+            //***************************************************************************
+
+            try {
+                //Present (40mm)
+                prnDevice.present(40);
+            } catch (CustomException e) {
+                //Only if isn't unsupported
+                if (e.GetErrorCode() != CustomException.ERR_UNSUPPORTEDFUNCTION) {
+                    //Show Error
+                    //showAlertMsg("Error...", e.getMessage());
+                    Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+                }
+            } catch (Exception e) {
+                //showAlertMsg("Error...", "Print Picture Error...");
+                Log.d(MainActivity.TAG, "Error: Print Picture Error...");
+            }
+        }
     }
 
-    public void onExit() throws Throwable
-    {
-        try
-        {
-            if (prnDevice != null)
-            {
+    public void onExit() throws Throwable {
+        try {
+            if (prnDevice != null) {
                 //Close device
                 prnDevice.close();
             }
-        }
-        catch(CustomException e )
-        {
+        } catch (CustomException e) {
             //Show Error
             //showAlertMsg("Error...", e.getMessage());
             Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
-        }
-        catch(Exception e )
-        {
+        } catch (Exception e) {
         }
 
         //Force Close

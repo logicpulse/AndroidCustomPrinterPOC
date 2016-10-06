@@ -1,60 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.logicpulse.logicpulsecustomprinter.MainActivity"
-    tools:showIn="@layout/activity_main">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <ListView
-        android:id="@+id/listViewDevices"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp" >
-    </ListView>
+        <ListView
+            android:id="@+id/listViewDevices"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/activity_listviewdevices_height"
+            />
 
-    <CheckBox
-        android:id="@+id/checkBoxNOPAPER"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:focusable = "true"
-        android:clickable= "false"
-        android:textSize="15sp"
-        android:visibility="invisible"
-        android:text="@string/stsNoPaper" />
+        <CheckBox
+            android:id="@+id/checkBoxNOPAPER"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="true"
+            android:text="@string/stsNoPaper"
+            android:textSize="15sp"
+            android:visibility="invisible" />
 
-    <CheckBox
-        android:id="@+id/checkBoxROLLING"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:focusable = "true"
-        android:clickable= "false"
-        android:textSize="15sp"
-        android:visibility="invisible"
-        android:text="@string/stsRolling" />
+        <CheckBox
+            android:id="@+id/checkBoxROLLING"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="true"
+            android:text="@string/stsRolling"
+            android:textSize="15sp"
+            android:visibility="invisible" />
 
-    <CheckBox
-        android:id="@+id/checkBoxLF"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:focusable = "true"
-        android:clickable= "false"
-        android:textSize="15sp"
-        android:visibility="invisible"
-        android:text="@string/stsLF" />
+        <CheckBox
+            android:id="@+id/checkBoxLF"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="true"
+            android:text="@string/stsLF"
+            android:textSize="15sp"
+            android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/textPrinterName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="15sp"
-        android:text=""
-        android:visibility="invisible"/>
+        <TextView
+            android:id="@+id/textPrinterName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="15sp"
+            android:visibility="invisible" />
 
-</RelativeLayout>
+</LinearLayout>
