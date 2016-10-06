@@ -5,7 +5,6 @@ import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -19,6 +18,7 @@ import java.util.Arrays;
 import it.custom.printer.api.android.CustomAndroidAPI;
 import it.custom.printer.api.android.CustomException;
 import it.custom.printer.api.android.CustomPrinter;
+import it.custom.printer.api.android.PrinterFont;
 import it.custom.printer.api.android.PrinterStatus;
 
 /**
@@ -32,26 +32,25 @@ public class CustomPrinterInterface {
     private int INT_SELECT_PICTURE = 1;
     private int GETSTATUS_TIME = 1000;        //1sec
 
-    static UsbDevice[] usbDeviceList = null;
+    private static UsbDevice[] usbDeviceList = null;
+    private static Handler hGetStatus = new Handler();
 
-    static CustomPrinter prnDevice = null;
+    private static CustomPrinter prnDevice = null;
     public static CustomPrinter getPrnDevice() {
         return prnDevice;
     }
 
-    static ListView listDevicesView ;
-    static ArrayAdapter<String> listAdapter;
+    private static ListView listDevicesView ;
+    private static ArrayAdapter<String> listAdapter;
 
-    static int lastDeviceSelected = -1;
-    static int deviceSelected = -1;
+    private static int lastDeviceSelected = -1;
+    private static int deviceSelected = -1;
 
     private String lock = "lockAccess";
 
-    static Handler hGetStatus = new Handler();
+    private String aPIVersion;
 
-    String aPIVersion;
-
-    //Require to use findViewById here
+    //Require to get view to use view.findViewById from outside activity
     private View view;
 
     public CustomPrinterInterface(Context context, View view, Bundle savedInstanceState) {
@@ -70,9 +69,6 @@ public class CustomPrinterInterface {
     }
 
     private void InitEverything(View view, Bundle savedInstanceState) {
-
-////Require to get view to use view.findViewById from outside activity
-//View view = LayoutInflater.from(context).inflate(R.layout.activity_main, null);
 
         //If is the 1st time
         if (savedInstanceState == null) {
@@ -139,9 +135,6 @@ public class CustomPrinterInterface {
             CheckBox ckbox;
             TextView txtView;
 
-////Require to get view to use view.findViewById from outside activity
-//View view = LayoutInflater.from(context).inflate(R.layout.activity_main, null);
-
             //If the device is open
             if (prnDevice != null) {
                 synchronized (lock) {
@@ -198,4 +191,174 @@ public class CustomPrinterInterface {
             hGetStatus.postDelayed(GetStatusRunnable, GETSTATUS_TIME);
         }
     };
+
+    //Open the device if it isn't already opened
+    public boolean OpenDevice()
+    {
+        //Device not selected
+        if (deviceSelected == -1)
+        {
+            //showAlertMsg("Error...", "No Printer Device Selected...");
+            Log.d(MainActivity.TAG, "Error: No Printer Device Selected...");
+            return false;
+        }
+
+        //If i changed the device
+        if (lastDeviceSelected != -1)
+        {
+            if (deviceSelected != lastDeviceSelected)
+            {
+                try
+                {
+                    //Force close
+                    prnDevice.close();
+                }
+                catch(CustomException e )
+                {
+
+                    //Show Error
+                    //showAlertMsg("Error...", e.getMessage());
+                    Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+                    return false;
+                }
+                catch(Exception e )
+                {
+                    //Show error
+                    return false;
+                }
+                prnDevice = null;
+            }
+        }
+
+        //If i never open it
+        if (prnDevice == null)
+        {
+            try
+            {
+                //Open and connect it
+                prnDevice = new CustomAndroidAPI().getPrinterDriverUSB(usbDeviceList[deviceSelected], context);
+                //Save last device selected
+                lastDeviceSelected = deviceSelected;
+                return true;
+            }
+            catch(CustomException e )
+            {
+
+                //Show Error
+                //showAlertMsg("Error...", e.getMessage());
+                Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+                return false;
+            }
+            catch(Exception e )
+            {
+                //showAlertMsg("Error...", "Open Print Error...");
+                Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+                //open error
+                return false;
+            }
+        }
+        //Already opened
+        return true;
+
+    }
+
+    public void onPrintText(View view)
+    {
+        PrinterFont fntPrinterNormal = new PrinterFont();
+        PrinterFont fntPrinterBold2X = new PrinterFont();
+        String strTextToPrint;
+        //open device
+        if (OpenDevice() == false)
+            return;
+
+        //Get Text
+        strTextToPrint = "FOOBAR";
+
+        try
+        {
+            //Fill class: NORMAL
+            fntPrinterNormal.setCharHeight(PrinterFont.FONT_SIZE_X1);					//Height x1
+            fntPrinterNormal.setCharWidth(PrinterFont.FONT_SIZE_X1);					//Width x1
+            fntPrinterNormal.setEmphasized(false);										//No Bold
+            fntPrinterNormal.setItalic(false);											//No Italic
+            fntPrinterNormal.setUnderline(false);										//No Underline
+            fntPrinterNormal.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);	//Center
+            fntPrinterNormal.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);		//Default International Chars
+
+            //Fill class: BOLD size 2X
+            fntPrinterBold2X.setCharHeight(PrinterFont.FONT_SIZE_X2);					//Height x2
+            fntPrinterBold2X.setCharWidth(PrinterFont.FONT_SIZE_X2);					//Width x2
+            fntPrinterBold2X.setEmphasized(true);										//Bold
+            fntPrinterBold2X.setItalic(false);											//No Italic
+            fntPrinterBold2X.setUnderline(false);										//No Underline
+            fntPrinterBold2X.setJustification(PrinterFont.FONT_JUSTIFICATION_CENTER);	//Center
+            fntPrinterBold2X.setInternationalCharSet(PrinterFont.FONT_CS_DEFAULT);		//Default International Chars
+        }
+        catch(CustomException e )
+        {
+            //Show Error
+            //showAlertMsg("Error...", e.getMessage());
+            Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+        }
+        catch(Exception e )
+        {
+            //showAlertMsg("Error...", "Set font properties error...");
+            Log.d(MainActivity.TAG, "Error: Set font properties error...");
+        }
+
+        //***************************************************************************
+        // PRINT TEXT
+        //***************************************************************************
+
+        synchronized (lock)
+        {
+            try
+            {
+                //Print Text (NORMAL)
+                prnDevice.printText(strTextToPrint, fntPrinterNormal);
+                prnDevice.printTextLF(strTextToPrint, fntPrinterNormal);
+                //Print Text (BOLD size 2X)
+                prnDevice.printTextLF(strTextToPrint, fntPrinterBold2X);
+            }
+            catch(CustomException e)
+            {
+                //Show Error
+                //showAlertMsg("Error...", e.getMessage());
+                Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+            }
+            catch(Exception e)
+            {
+                //showAlertMsg("Error...", "Print Text Error...");
+                Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+            }
+        }
+    }
+
+    public void onPrintPictureClick(View view)
+    {
+    }
+
+    public void onExit() throws Throwable
+    {
+        try
+        {
+            if (prnDevice != null)
+            {
+                //Close device
+                prnDevice.close();
+            }
+        }
+        catch(CustomException e )
+        {
+            //Show Error
+            //showAlertMsg("Error...", e.getMessage());
+            Log.d(MainActivity.TAG, String.format("Error: %s", e.getMessage()));
+        }
+        catch(Exception e )
+        {
+        }
+
+        //Force Close
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
 }

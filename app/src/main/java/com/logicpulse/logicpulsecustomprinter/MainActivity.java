@@ -38,11 +38,22 @@ public class MainActivity extends AppCompatActivity {
         View viewActivityMain = findViewById(R.id.content_main);
 
         //Init CustomPrinterInterface
-        CustomPrinterInterface customPrinterInterface = new CustomPrinterInterface(
+        customPrinterInterface = new CustomPrinterInterface(
                 this.getApplicationContext(),
                 viewActivityMain,
                 savedInstanceState
         );
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        try {
+            customPrinterInterface.onExit();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     @Override
