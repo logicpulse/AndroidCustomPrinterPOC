@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         //Get Package Name
         packageName = getApplicationContext().getPackageName();
 
-        //
+        //Init Permissions
         Utils.copyFileHardwareUsbHostToSystemPermission(this);
 
         //Init CustomPrinterInterface

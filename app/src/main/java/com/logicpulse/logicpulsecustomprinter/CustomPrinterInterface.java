@@ -92,7 +92,7 @@ public class CustomPrinterInterface {
                     //Show Error
                     String errorMessage = String.format("Printer Error: No Devices Connected...");
                     Utils.showAlert((Activity) context, errorMessage);
-                    Log.d(MainActivity.TAG, errorMessage);
+                    Log.e(MainActivity.TAG, errorMessage);
                     return;
                 }
             } catch (CustomException e) {
@@ -105,7 +105,7 @@ public class CustomPrinterInterface {
                 //Show Error
                 String errorMessage = String.format("Printer Error: Enum devices error...");
                 Utils.showAlert((Activity) context, errorMessage);
-                Log.d(MainActivity.TAG, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
                 return;
             }
         }
@@ -256,7 +256,7 @@ public class CustomPrinterInterface {
             //Show Error
             String errorMessage = String.format("Printer Error: No Printer Device Selected...");
             Utils.showAlert((Activity) context, errorMessage);
-            Log.d(MainActivity.TAG, errorMessage);
+            Log.e(MainActivity.TAG, errorMessage);
             return false;
         }
 
@@ -292,7 +292,7 @@ public class CustomPrinterInterface {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 Utils.showAlert((Activity) context, errorMessage);
-                Log.d(MainActivity.TAG, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
                 return false;
             } catch (Exception e) {
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
@@ -345,7 +345,7 @@ public class CustomPrinterInterface {
             //Show Error
             String errorMessage = String.format("Printer Error: Set font properties error...");
             Utils.showAlert((Activity) context, errorMessage);
-            Log.d(MainActivity.TAG, errorMessage);
+            Log.e(MainActivity.TAG, errorMessage);
         }
 
         //***************************************************************************

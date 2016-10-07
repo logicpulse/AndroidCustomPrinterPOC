@@ -1,7 +1,6 @@
 package com.logicpulse.logicpulsecustomprinter;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.AssetManager;
@@ -9,23 +8,20 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Environment;
+import android.os.PowerManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.WindowManager;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import static android.content.ContentValues.TAG;
-import static android.provider.Telephony.Mms.Part.FILENAME;
 
 /**
  * Created by mario.monteiro on 06/10/2016.
@@ -77,7 +73,7 @@ public class Utils {
     }
 
     public static void alarmStartPlay(Context context, Ringtone ringtone) {
-        if (ringtone != null && ! ringtone.isPlaying()) {
+        if (ringtone != null && !ringtone.isPlaying()) {
             ringtone.play();
         }
     }
@@ -116,6 +112,21 @@ public class Utils {
         alert.show();
     }
 
+    public static void showConfirmReboot(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Hello!")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Handle Ok
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Handle Cancel
+                    }
+                })
+                .create();
+    }
 
     public static void remountFileSystem() {
         try {
@@ -130,9 +141,7 @@ public class Utils {
     //check with "cat /system/etc/permissions/android.hardware.usb.host.xml"
     //required here CustomAndroidAPI().getPrinterDriverUSB
     //else "User has not given permission to device UsbDevice[mName=/dev/bus/usb/001/026,mVendorId=3540,mProductId=423,mClass=0,mSubclass=0,mProtocol=0,mManufacturerName=CUSTOM Engineering S.p.A.,mProductName=TG2460-H,mSerialNumber=TG2460-H Num.: 0,mConfigurations=["
-
     //system/etc/permissions/android.hardware.usb.host.xml contains a path separator
-
     //How to enable USB host API support
     //https://github.com/452/USBHIDTerminal/wiki/How-to-enable-USB-host-API-support
 
@@ -140,21 +149,35 @@ public class Utils {
         try {
             String permissionFile = "android.hardware.usb.host.xml";
             //https://developer.android.com/reference/android/os/Environment.html#getRootDirectory()
-            File extRootFileSystem = Environment.getRootDirectory();
-            File fileRootFileSystem = new File(String.format("%s/etc/permissions/%s", extRootFileSystem.getAbsolutePath(), permissionFile));
-            File dataDirectory = new File(context.getApplicationInfo().dataDir);
-            File fileDataDirectory = new File(String.format("%s/files/%s", dataDirectory.getAbsolutePath(), permissionFile));
+            File dirRootFileSystem = Environment.getRootDirectory();
+            File fileRootFileSystemPermission = new File(String.format("%s/etc/permissions/%s", dirRootFileSystem.getAbsolutePath(), permissionFile));
+            File dirAppData = new File(context.getApplicationInfo().dataDir);
+            File fileAppDataPermission = new File(String.format("%s/files/%s", dirAppData.getAbsolutePath(), permissionFile));
 
-            if(! fileRootFileSystem.exists()) {
+            if (!fileRootFileSystemPermission.exists()) {
                 //Copy to data dir First
-                copyFile(context, "android.hardware.usb.host.xml", fileDataDirectory.getAbsolutePath());
+                copyFileFromAssets(context, permissionFile, String.format("%s/%s", dirAppData.getAbsolutePath(), "/files"));
 
-                remountFileSystem();
-                //android EROFS (Read-only file system)
-                //Fix: using the permission of WRITE_EXTERNAL_STORAGE use that whether there is an external card or not.
-                copyFile(context, fileDataDirectory.getAbsolutePath(), "/system/etc/permissions");
-                Utils.showAlert((Activity) context, "REBOOT REQUIRED");
-                Runtime.getRuntime().exec("su reboot");
+                //TRICK IS: -c =  which tells su to execute the command that directly follows it on the same line
+                String cmd = String.format("su -c cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
+                Runtime.getRuntime().exec("su -c mount -o remount,rw /system");
+                Runtime.getRuntime().exec(cmd);
+                Runtime.getRuntime().exec("su -c mount -o remount,ro /system");
+
+                if (fileRootFileSystemPermission.exists()) {
+                    //Delete Temp File
+                    fileAppDataPermission.delete();
+                    //Show Message
+                    String errorMessage = String.format("Successfully Copied USB Permission File to:\r\n%s\r\n\r\nWarning: Device will Reboot to apply permissions!", fileRootFileSystemPermission);
+                    showAlert((Activity) context, errorMessage);
+                    Log.d(MainActivity.TAG, errorMessage);
+                    showConfirmReboot(context);
+                } else {
+                    //Show Error
+                    String errorMessage = String.format("Error copy USB Permission File to: %s", fileRootFileSystemPermission);
+                    Utils.showAlert((Activity) context, errorMessage);
+                    Log.e(MainActivity.TAG, errorMessage);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -170,12 +193,12 @@ public class Utils {
         try {
             assets = assetManager.list(path);
             if (assets.length == 0) {
-                copyFile(context, path, outPath);
+                copyFileFromAssets(context, path, outPath);
             } else {
                 String fullPath = outPath + "/" + path;
                 File dir = new File(fullPath);
                 if (!dir.exists())
-                    if (!dir.mkdir()) Log.e(TAG, "No create external directory: " + dir );
+                    if (!dir.mkdir()) Log.e(TAG, "No create external directory: " + dir);
                 for (String asset : assets) {
                     copyAssets(context, path + "/" + asset, outPath);
                 }
@@ -185,7 +208,7 @@ public class Utils {
         }
     }
 
-    private static void copyFile(Context context, String filename, String outPath) {
+    public static void copyFileFromAssets(Context context, String filename, String outPath) {
         AssetManager assetManager = context.getAssets();
 
         InputStream in;
@@ -195,11 +218,6 @@ public class Utils {
             in = assetManager.open(filename);
             String newFileName = outPath + "/" + filename;
             out = new FileOutputStream(newFileName);
-
-            //remountFileSystem();
-            //The openFileInput method will not accept path separators.('/')
-            //it accepts only the name of the file which you want to open/access. so change the statement
-            //out = context.openFileOutput(filename, Context.MODE_PRIVATE);
 
             byte[] buffer = new byte[1024];
             int read;
@@ -211,6 +229,24 @@ public class Utils {
             out.close();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
+        }
+    }
+
+    public static void executeHasSu(String command) {
+        try {
+            Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot now"});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void rebootDevice(Context context) {
+        //PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        //pm.reboot(null);
+        try {
+            Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot now"});
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
