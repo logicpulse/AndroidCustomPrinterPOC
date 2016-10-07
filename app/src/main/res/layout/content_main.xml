@@ -19,6 +19,16 @@
             />
 
         <CheckBox
+            android:id="@+id/checkBoxCONNERROR"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="true"
+            android:text="@string/stsConnError"
+            android:textSize="15sp"
+            android:visibility="invisible" />
+
+        <CheckBox
             android:id="@+id/checkBoxNOPAPER"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

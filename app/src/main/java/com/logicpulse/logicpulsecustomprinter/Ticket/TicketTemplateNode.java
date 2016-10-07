@@ -13,14 +13,12 @@ public class TicketTemplateNode {
 
     @Attribute
     private String key;
-
     @Element
     private String value;
 
     public String getKey() {
         return key;
     }
-
     public String getValue() {
         return value;
     }

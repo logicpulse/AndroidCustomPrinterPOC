@@ -10,6 +10,7 @@
     <string name="action_test_alarm_stop_play">Alarm Stop</string>
     <string name="action_test_ticket">Test Ticket</string>
 
+    <string name="stsConnError">Printer Connection Error</string>
     <string name="stsNoPaper">No Paper</string>
     <string name="stsPaperJam">Paper Jam</string>
     <string name="stsRolling">Paper Rolling</string>

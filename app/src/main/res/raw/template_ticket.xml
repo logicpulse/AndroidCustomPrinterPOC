@@ -1,16 +1,23 @@
-<ticket name="example">
+<ticket name="ticketsample" charset="FONT_CS_DEFAULT">
     <list>
-        <entry key="one">
-            <value>first value</value>
+        <entry key="logo">
+            <type>image</type>
+            <filename>Template/logo.png</filename>
+            <width>fullwidth</width>
+            <paddingleft>100</paddingleft>
         </entry>
-        <entry key="two">
+
+        <entry key="ticketnumber">
             <value>first value</value>
-        </entry>
-        <entry key="three">
-            <value>first value</value>
-        </entry>
-        <entry key="four">
-            <value>first value</value>
+            <!-- 0...7-->
+            <charheight>1</charheight>
+            <charwidth>1</charwidth>
+            <emphasized>false</emphasized>
+            <italic>false</italic>
+            <underline>false</underline>
+            <!-- left,center,right-->
+            <justification>center</justification>
+            <marginbottom>100</marginbottom>
         </entry>
     </list>
 </ticket>

@@ -15,14 +15,17 @@ public class TicketTemplate {
 
     @ElementList
     private List<TicketTemplateNode> list;
-
     @Attribute
     private String name;
+    @Attribute
+    private String charset;
 
     public String getName() {
         return name;
     }
-
+    public String getCharset() {
+        return charset;
+    }
     public List getProperties() {
         return list;
     }
