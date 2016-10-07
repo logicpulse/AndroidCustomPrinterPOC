@@ -39,7 +39,7 @@ public class PowerMan {
             return mScreenOn;
         }
 
-        mScreenOn = mPowerManager.isScreenOn();
+        mScreenOn = mPowerManager.isInteractive();
 
         Log.d(TAG, "==getScreenOn[" + mScreenOn + "]");
 
