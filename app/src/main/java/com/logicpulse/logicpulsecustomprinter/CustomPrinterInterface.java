@@ -91,7 +91,7 @@ public class CustomPrinterInterface {
                 if ((usbDeviceList == null) || (usbDeviceList.length == 0)) {
                     //Show Error
                     String errorMessage = String.format("Printer Error: No Devices Connected...");
-                    Utils.showAlert((Activity) context, errorMessage);
+                    //Utils.showAlert((Activity) context, errorMessage);
                     Log.e(MainActivity.TAG, errorMessage);
                     return;
                 }
@@ -255,7 +255,7 @@ public class CustomPrinterInterface {
         if (deviceSelected == -1) {
             //Show Error
             String errorMessage = String.format("Printer Error: No Printer Device Selected...");
-            Utils.showAlert((Activity) context, errorMessage);
+            //Utils.showAlert((Activity) context, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
             return false;
         }

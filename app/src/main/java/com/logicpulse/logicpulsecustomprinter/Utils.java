@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -112,12 +113,15 @@ public class Utils {
         alert.show();
     }
 
-    public static void showConfirmReboot(Context context) {
+    public static void showConfirmReboot(Context context, String message) {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage("Hello!")
+        final Context finalContext = context;
+
+        builder.setMessage(message)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // Handle Ok
+                        Utils.rebootDevice(finalContext);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -125,12 +129,12 @@ public class Utils {
                         // Handle Cancel
                     }
                 })
-                .create();
+                .create()
+                .show();
     }
 
     public static void remountFileSystem() {
         try {
-            //Runtime.getRuntime().exec("su mount -o remount,rw /system");
             Runtime.getRuntime().exec("mount -o rw,remount -t rootfs /");
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,19 +163,22 @@ public class Utils {
                 copyFileFromAssets(context, permissionFile, String.format("%s/%s", dirAppData.getAbsolutePath(), "/files"));
 
                 //TRICK IS: -c =  which tells su to execute the command that directly follows it on the same line
-                String cmd = String.format("su -c cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
-                Runtime.getRuntime().exec("su -c mount -o remount,rw /system");
-                Runtime.getRuntime().exec(cmd);
-                Runtime.getRuntime().exec("su -c mount -o remount,ro /system");
+String cmd = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
+//Runtime.getRuntime().exec("su -c mount -o remount,rw /system");
+//Runtime.getRuntime().exec(cmd);
+//Runtime.getRuntime().exec("su -c mount -o remount,ro /system");
+                executeHasSu("mount -o remount,rw /system");
+                executeHasSu(cmd);
+                executeHasSu("mount -o remount,ro /system");
 
                 if (fileRootFileSystemPermission.exists()) {
                     //Delete Temp File
                     fileAppDataPermission.delete();
                     //Show Message
                     String errorMessage = String.format("Successfully Copied USB Permission File to:\r\n%s\r\n\r\nWarning: Device will Reboot to apply permissions!", fileRootFileSystemPermission);
-                    showAlert((Activity) context, errorMessage);
+                    //showAlert((Activity) context, errorMessage);
                     Log.d(MainActivity.TAG, errorMessage);
-                    showConfirmReboot(context);
+                    showConfirmReboot(context, errorMessage);
                 } else {
                     //Show Error
                     String errorMessage = String.format("Error copy USB Permission File to: %s", fileRootFileSystemPermission);
@@ -234,19 +241,40 @@ public class Utils {
 
     public static void executeHasSu(String command) {
         try {
-            Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot now"});
+            Runtime.getRuntime().exec(new String[]{"su", "-c", command});
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void rebootDevice(Context context) {
-        //PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        //pm.reboot(null);
+        executeHasSu("reboot now");
+    }
+
+    public static boolean enableNetworkADB(Boolean enable) {
+        boolean result = false;
+
         try {
-            Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot now"});
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            if (enable) {
+                os.writeBytes("setprop service.adb.tcp.port 5555\n");
+            }
+            else {
+                os.writeBytes("setprop service.adb.tcp.port -1\n");
+            }
+            os.writeBytes("stop adbd\n");
+            os.writeBytes("start adbd\n");
+            os.flush();
+            os.writeBytes("exit\n");
+            os.flush();
+            process.waitFor();
+            result = true;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return result;
     }
 }

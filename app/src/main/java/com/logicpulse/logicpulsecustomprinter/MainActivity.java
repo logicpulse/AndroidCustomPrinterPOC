@@ -3,6 +3,7 @@ package com.logicpulse.logicpulsecustomprinter;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbAccessory;
@@ -11,6 +12,7 @@ import android.media.Ringtone;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,6 +23,8 @@ import android.view.MenuItem;
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
 import java.io.InputStream;
+
+import static android.os.Debug.isDebuggerConnected;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,8 +57,18 @@ public class MainActivity extends AppCompatActivity {
         //Get Package Name
         packageName = getApplicationContext().getPackageName();
 
+        //Init Network ADB only if not debugger attached, else we close adb, and debug
+        if (! isDebuggerConnected()) {
+            Utils.enableNetworkADB(true);
+        }
+
         //Init Permissions
-        Utils.copyFileHardwareUsbHostToSystemPermission(this);
+        final Context finalContext = this;
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Utils.copyFileHardwareUsbHostToSystemPermission(finalContext);
+            }
+        });
 
         //Init CustomPrinterInterface
         customPrinterInterface = new CustomPrinterInterface(
