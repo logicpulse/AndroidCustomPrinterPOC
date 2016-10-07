@@ -119,12 +119,12 @@ public class Utils {
         final Context finalContext = context;
 
         builder.setMessage(message)
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.rebootDevice(finalContext);
                     }
                 })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // Handle Cancel
                     }
@@ -148,7 +148,6 @@ public class Utils {
     //system/etc/permissions/android.hardware.usb.host.xml contains a path separator
     //How to enable USB host API support
     //https://github.com/452/USBHIDTerminal/wiki/How-to-enable-USB-host-API-support
-
     public static void copyFileHardwareUsbHostToSystemPermission(Context context) {
         try {
             String permissionFile = "android.hardware.usb.host.xml";
@@ -163,10 +162,7 @@ public class Utils {
                 copyFileFromAssets(context, permissionFile, String.format("%s/%s", dirAppData.getAbsolutePath(), "/files"));
 
                 //TRICK IS: -c =  which tells su to execute the command that directly follows it on the same line
-String cmd = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
-//Runtime.getRuntime().exec("su -c mount -o remount,rw /system");
-//Runtime.getRuntime().exec(cmd);
-//Runtime.getRuntime().exec("su -c mount -o remount,ro /system");
+                String cmd = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
                 executeHasSu("mount -o remount,rw /system");
                 executeHasSu(cmd);
                 executeHasSu("mount -o remount,ro /system");
@@ -175,8 +171,7 @@ String cmd = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystem
                     //Delete Temp File
                     fileAppDataPermission.delete();
                     //Show Message
-                    String errorMessage = String.format("Successfully Copied USB Permission File to:\r\n%s\r\n\r\nWarning: Device will Reboot to apply permissions!", fileRootFileSystemPermission);
-                    //showAlert((Activity) context, errorMessage);
+                    String errorMessage = String.format("Successfully Copied USB Permission File to:\r\n%s\r\n\r\nWarning: Do you want reboot device to apply permissions?", fileRootFileSystemPermission);
                     Log.d(MainActivity.TAG, errorMessage);
                     showConfirmReboot(context, errorMessage);
                 } else {
@@ -239,6 +234,7 @@ String cmd = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystem
         }
     }
 
+    //The trick is -c to execute command has su ex "su -c reboot now"
     public static void executeHasSu(String command) {
         try {
             Runtime.getRuntime().exec(new String[]{"su", "-c", command});
