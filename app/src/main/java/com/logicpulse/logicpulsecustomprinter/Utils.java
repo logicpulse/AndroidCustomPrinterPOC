@@ -2,8 +2,11 @@ package com.logicpulse.logicpulsecustomprinter;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Service;
+import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -11,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.media.Ringtone;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Gravity;
@@ -273,5 +277,48 @@ public class Utils {
             e.printStackTrace();
         }
         return result;
+    }
+
+    //Turning screen on and off programmatically not working on some devices
+    //http://stackoverflow.com/questions/13416563/turning-screen-on-and-off-programmatically-not-working-on-some-devices
+    public static void powerManagerScreenOff(Context context, String packageName) {
+        //PowerManager pm = (PowerManager)content.getSystemService(Service.POWER_SERVICE);
+        //Intent intent = new Intent(mPackageName);
+        //intent.setAction(Intent.ACTION_SCREEN_OFF);
+        //content.startActivity(intent);
+
+        //PowerManager pm = (PowerManager) content.getSystemService(Context.POWER_SERVICE);
+        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
+        //wl.acquire();
+        //..screen will stay on during this section..
+        //wl.release();
+
+        Utils.executeHasSu("reboot");
+
+        //Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 1000);
+
+        //http://stackoverflow.com/questions/6560426/android-devicepolicymanager-locknow
+        //DevicePolicyManager devicePolicyManager = (DevicePolicyManager)context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        //devAdminReceiver = new ComponentName(context, deviceAdminReceiver.class);
+        //devicePolicyManager.lockNow();
+    }
+
+    //http://stackoverflow.com/questions/6756768/turn-off-screen-on-android
+    //Needed permission:
+    //<uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    public static void powerManagerScreenOn(Context context, String packageName) {
+        //PowerManager pm = (PowerManager)content.getSystemService(Service.POWER_SERVICE);
+        //Intent intent = new Intent(mPackageName);
+        //intent.setAction(Intent.ACTION_SCREEN_ON);
+        //content.startActivity(intent);
+
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, MainActivity.TAG);
+        //wl.acquire();
+        //..screen will stay on during this section..
+        //wl.release();
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
+        wl.acquire();
+        wl.release();
     }
 }

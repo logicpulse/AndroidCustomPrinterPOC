@@ -1,29 +1,34 @@
 package com.logicpulse.logicpulsecustomprinter;
 
+import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbManager;
 import android.media.Ringtone;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
 import java.io.InputStream;
 
+import static android.content.Intent.ACTION_SCREEN_OFF;
+import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.os.Debug.isDebuggerConnected;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,9 +37,11 @@ public class MainActivity extends AppCompatActivity {
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private PendingIntent pendingIntent;
-    public String packageName;
-    private CustomPrinterInterface customPrinterInterface;
-    private Ringtone ringtone;
+    public String mPackageName;
+    private CustomPrinterInterface mCustomPrinterInterface;
+    private Ringtone mRingtone;
+    private ComponentName mDevAdminReceiver;
+    private DevicePolicyManager mDevicePolicyManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         View viewActivityMain = findViewById(R.id.content_main);
 
         //Get Package Name
-        packageName = getApplicationContext().getPackageName();
+        mPackageName = getApplicationContext().getPackageName();
 
         //Init Network ADB only if not debugger attached, else we close adb, and debug
         if (! isDebuggerConnected()) {
@@ -71,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //Init CustomPrinterInterface
-        customPrinterInterface = new CustomPrinterInterface(
+        mCustomPrinterInterface = new CustomPrinterInterface(
                 //Fix for listViewDevices textColor
                 //never use getApplicationContext(). Just use your Activity as the Context
                 this /*this.getApplicationContext()*/,
@@ -81,6 +88,17 @@ public class MainActivity extends AppCompatActivity {
 
         //Register BroadcastReceiver()
         registerBroadcastReceiver();
+
+        //KeepScreenOn WakeLock
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //Device Admin
+        mDevicePolicyManager = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -88,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
 
         try {
-            customPrinterInterface.onExit();
+            mCustomPrinterInterface.onExit();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
@@ -152,6 +170,10 @@ public class MainActivity extends AppCompatActivity {
             actionTestTicket();
             return true;
         }
+        if (id == R.id.action_test_screen_off) {
+            actionTestScreenOff();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -161,10 +183,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void registerBroadcastReceiver() {
         try {
+
+            //USB
             pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
             IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-            //Register BroadcastRecevive
+            //Register BroadcastReceiver
             registerReceiver(mUsbReceiver, filter);
+
+            //PowerManager
+            filter = new IntentFilter(ACTION_SCREEN_ON);
+            filter.addAction(ACTION_SCREEN_OFF);
+            //Register BroadcastReceiver
+            registerReceiver(mPowerManagerReceiver, filter);
         } catch (Exception ex) {
             Log.e(MainActivity.TAG, ex.getMessage(), ex);
         }
@@ -190,32 +220,80 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final BroadcastReceiver mPowerManagerReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (ACTION_SCREEN_ON.equals(action)) {
+                synchronized (this) {
+                    Log.e(MainActivity.TAG, "ACTION_SCREEN_ON");
+                }
+            }
+            else
+            if (ACTION_SCREEN_OFF.equals(action)) {
+                synchronized (this) {
+                    Log.e(MainActivity.TAG, "ACTION_SCREEN_OFF");
+                }
+            }
+        }
+    };
+
     //--------------------------------------------------------------------------------------------------------------
     // Actions
 
     private void actionOpenDevice() {
         //Open it
-        customPrinterInterface.openDevice();
+        mCustomPrinterInterface.openDevice();
     }
 
     private void actionTestDevicePrintText() {
-        customPrinterInterface.testPrintText(PRINT_TEXT);
+        mCustomPrinterInterface.testPrintText(PRINT_TEXT);
     }
 
     private void actionTestDevicePrintImage() {
         InputStream inputStream = Utils.getInputStreamFromRawResource(this, R.raw.image);
-        customPrinterInterface.testPrintImage(inputStream);
+        mCustomPrinterInterface.testPrintImage(inputStream);
     }
 
     private void actionTestAlarmStart() {
-        Utils.alarmStartPlay(this, ringtone);
+        Utils.alarmStartPlay(this, mRingtone);
     }
 
     private void actionTestAlarmStop() {
-        Utils.alarmStopPlay(ringtone);
+        Utils.alarmStopPlay(mRingtone);
     }
 
     private void actionTestTicket() {
         Ticket ticket = new Ticket(this);
+    }
+
+    private void actionTestScreenOff() {
+
+        //Screen Off
+        final Activity  finalContext = (Activity)this;
+        Utils.powerManagerScreenOff(this, mPackageName);
+
+        //http://stackoverflow.com/questions/6560426/android-devicepolicymanager-locknow
+        //ComponentName devAdminReceiver; // this would have been declared in your class body
+        // then in your onCreate
+        //mDPM = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+        //devAdminReceiver = new ComponentName(context, deviceAdminReceiver.class);
+        //then in your onResume
+
+        //mDevicePolicyManager.lockNow();
+        //finish();
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.powerManagerScreenOn(finalContext, mPackageName);
+                    }
+                }, 60000);
+            }
+        });
     }
 }

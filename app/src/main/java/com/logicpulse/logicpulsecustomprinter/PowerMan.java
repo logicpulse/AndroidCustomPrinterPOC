@@ -8,6 +8,15 @@ import android.util.Log;
 
 /**
  * Created by mario.monteiro on 07/10/2016.
+ * PowerManager
+ * https://developer.android.com/reference/android/os/PowerManager.html
+ * https://thinkandroid.wordpress.com/2010/01/24/handling-screen-off-and-screen-on-intents/
+ *
+ *
+ *
+ * This is what i think you are looking for. Don't forget to include following permission.
+ * android.permission.DEVICE_POWER
+ * http://developer.android.com/reference/android/os/PowerManager.html#goToSleep%28long%29
  */
 
 public class PowerMan {
@@ -16,49 +25,30 @@ public class PowerMan {
     private Activity mActivity;
     private PowerManager mPowerManager;
     private boolean mScreenOn = true;
+    private PowerManager.WakeLock mWakeLock;
 
     // Constructor:
     private PowerMan(Activity activity) {
-        Log.d(TAG, "==TestScreenOff");
-
-        initialize(activity);
-    }
-
-    // Initialize activity-dependent fields:
-    public void initialize(Activity activity) {
-        Log.d(TAG, "==initialize");
-
-        mActivity = activity;
         mPowerManager = (PowerManager) mActivity.getSystemService(Context.POWER_SERVICE);
     }
 
-    // Gets screenOn:
     public boolean getScreenOn() {
         if(mPowerManager == null) {
-            Log.e(TAG, "==getScreenOn: mPowerManager == null");
             return mScreenOn;
         }
 
         mScreenOn = mPowerManager.isInteractive();
 
-        Log.d(TAG, "==getScreenOn[" + mScreenOn + "]");
-
         return mScreenOn;
     }
 
-    // Sets screenOn:
     public void setScreenOn(final boolean screenOn) {
-        Log.d(TAG, "==setScreenOn[" + screenOn + "]");
-
         if(mPowerManager == null) {
-            Log.e(TAG, "==setScreenOn: mPowerManager == null");
             return;
         }
 
         if(screenOn) {
-            mPowerManager.wakeUp(SystemClock.uptimeMillis());
-        } else {
-            mPowerManager.goToSleep(SystemClock.uptimeMillis());
+            mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
         }
     }
 }
