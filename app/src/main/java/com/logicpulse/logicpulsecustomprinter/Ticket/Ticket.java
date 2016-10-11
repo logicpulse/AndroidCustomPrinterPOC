@@ -237,7 +237,7 @@ public class Ticket {
                                         barcode2dtype = -104;
                                         break;
                                 }
-                                mPrinter.printBarCode2D(node.getValue(), barcode2dtype, alignBarCode, node.getBarCode2DWidth(), node.getFeeds());
+                                mPrinter.printBarCode2D(node.getValue(), barcode2dtype, alignBarCode, node.getWidth(), node.getFeeds());
                                 break;
 
                             case "cut":

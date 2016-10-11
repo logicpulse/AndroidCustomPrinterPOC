@@ -156,9 +156,9 @@
     {
       "type": "barcode2d",
       "barcode2dtype": "barcode_type_qrcode",
-      "barcode2dwidth": 300,
       "value": "logicpulse.com",
       "align" : 0,
+      "width": 300,
       "enabled" : true,
       "feeds": 0
     },

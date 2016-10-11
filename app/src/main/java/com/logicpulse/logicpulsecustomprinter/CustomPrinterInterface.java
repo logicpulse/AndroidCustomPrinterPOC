@@ -385,14 +385,14 @@ public class CustomPrinterInterface {
         }
     }
 
-    public void printBarCode2D(String text, Integer barcodetype, Integer align, Integer barcode2dwidth, Integer feeds) {
+    public void printBarCode2D(String text, Integer barcodetype, Integer align, Integer width, Integer feeds) {
         //open device
         if (openDevice() == false) return;
 
         synchronized (lock) {
 
             try {
-                prnDevice.printBarcode2D(text, barcodetype, align, barcode2dwidth);
+                prnDevice.printBarcode2D(text, barcodetype, align, width);
                 if (feeds > 0) prnDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error

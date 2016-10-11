@@ -82,7 +82,6 @@ public class TicketTemplateNode {
     //BARCODE_TYPE_DATAMATRIX - Indicates to print a DATAMATRIX Barcode 2D
     //BARCODE_TYPE_AZTEC - Indicates to print a AZTEC Barcode 2D
     private String barcode2dtype = "barcode_type_qrcode";
-    private Integer barcode2dwidth = 200;
 
     //Cut
     //CUT_TOTAL = 0;
@@ -196,9 +195,5 @@ public class TicketTemplateNode {
 
     public String getBarcode2dtype() {
         return barcode2dtype;
-    }
-
-    public Integer getBarCode2DWidth() {
-        return barcode2dwidth;
     }
 }
