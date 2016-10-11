@@ -27,6 +27,8 @@ import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
 import java.io.InputStream;
 
+import it.custom.printer.api.android.CustomException;
+
 import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.os.Debug.isDebuggerConnected;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public String mPackageName;
     private CustomPrinterInterface mCustomPrinterInterface;
     private Ringtone mRingtone;
+    private Ticket mTicket;
     private ComponentName mDevAdminReceiver;
     private DevicePolicyManager mDevicePolicyManager;
 
@@ -65,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mPackageName = getApplicationContext().getPackageName();
 
         //Init Network ADB only if not debugger attached, else we close adb, and debug
-        if (! isDebuggerConnected()) {
+        if (!isDebuggerConnected()) {
             Utils.enableNetworkADB(true);
         }
 
@@ -93,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Device Admin
-        mDevicePolicyManager = (DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
     }
 
     @Override
@@ -228,9 +231,7 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (this) {
                     Log.e(MainActivity.TAG, "ACTION_SCREEN_ON");
                 }
-            }
-            else
-            if (ACTION_SCREEN_OFF.equals(action)) {
+            } else if (ACTION_SCREEN_OFF.equals(action)) {
                 synchronized (this) {
                     Log.e(MainActivity.TAG, "ACTION_SCREEN_OFF");
                 }
@@ -264,13 +265,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void actionTestTicket() {
-        Ticket ticket = new Ticket(this);
+
+        final Context context = this;
+
+        if (mCustomPrinterInterface != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (mTicket == null) {
+                                //Init Ticket
+                                mTicket = new Ticket(context, mCustomPrinterInterface);
+                            }
+                            try {
+                                //Print
+                                mTicket.print(2);
+                            } catch (CustomException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, 100);
+                }
+            });
+        }
     }
 
     private void actionTestScreenOff() {
 
         //Screen Off
-        final Activity  finalContext = (Activity)this;
+        final Activity finalContext = (Activity) this;
         Utils.powerManagerScreenOff(this, mPackageName);
 
         //http://stackoverflow.com/questions/6560426/android-devicepolicymanager-locknow

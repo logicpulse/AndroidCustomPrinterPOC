@@ -1,32 +1,21 @@
 package com.logicpulse.logicpulsecustomprinter.Ticket;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import java.util.List;
+import java.util.ArrayList;
+
+import static android.bluetooth.BluetoothClass.CREATOR;
 
 /**
- * Created by mario.monteiro on 06/10/2016.
+ * Created by mario.monteiro on 10/10/2016.
  */
 
-@Root
-public class TicketTemplate {
+class TicketTemplate {
+    private ArrayList<TicketTemplateNode> properties;
 
-    @ElementList
-    private List<TicketTemplateNode> list;
-    @Attribute
-    private String name;
-    @Attribute
-    private String charset;
+    public ArrayList<TicketTemplateNode> getProperties() {
+        return properties;
+    }
 
-    public String getName() {
-        return name;
-    }
-    public String getCharset() {
-        return charset;
-    }
-    public List getProperties() {
-        return list;
-    }
 }

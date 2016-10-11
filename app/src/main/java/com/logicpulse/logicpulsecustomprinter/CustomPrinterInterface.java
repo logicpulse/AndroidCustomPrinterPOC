@@ -18,6 +18,8 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,14 +66,15 @@ public class CustomPrinterInterface {
         //Start the get status thread after GETSTATUS_TIME msec
         hGetStatus.postDelayed(GetStatusRunnable, GETSTATUS_TIME);
 
-//User has not given permission to device UsbDevice[mName=/dev/bus/usb/001/026,mVendorId=3540,mProductId=423,mClass=0,mSubclass=0,mProtocol=0,mManufacturerName=CUSTOM Engineering S.p.A.,mProductName=TG2460-H,mSerialNumber=TG2460-H Num.: 0,mConfigurations=[
-//http://stackoverflow.com/questions/11817192/android-copy-res-raw-resource-to-sd-correctly
-//InputStream inputStream = context.getResources().openRawResource(R.raw.android_hardware_usb_host);
-//File > New > folder > assets Folder
-//Note : App must be selected before creating folder.
+        //User has not given permission to device UsbDevice[mName=/dev/bus/usb/001/026,mVendorId=3540,mProductId=423,mClass=0,mSubclass=0,mProtocol=0,mManufacturerName=CUSTOM Engineering S.p.A.,mProductName=TG2460-H,mSerialNumber=TG2460-H Num.: 0,mConfigurations=[
+        //http://stackoverflow.com/questions/11817192/android-copy-res-raw-resource-to-sd-correctly
+        //InputStream inputStream = context.getResources().openRawResource(R.raw.android_hardware_usb_host);
+        //File > New > folder > assets Folder
+        //Note : App must be selected before creating folder.
 
         //Init everything
         Init(view, savedInstanceState);
+
         //Start Open
         openDevice();
     }
@@ -305,6 +308,85 @@ public class CustomPrinterInterface {
         //Already opened
         return true;
 
+    }
+
+    public void printText(String text, PrinterFont printerFont, Integer feeds) {
+
+        //open device
+        if (openDevice() == false) return;
+
+        synchronized (lock) {
+            try {
+                prnDevice.printTextLF(text, printerFont);
+                if (feeds > 0) prnDevice.feed(feeds);
+            } catch (CustomException e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            } catch (Exception e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            }
+        }
+    }
+
+    public void printImage(InputStream inputStream, Integer align, Integer scaletofit, Integer width, Integer feeds) {
+
+        //open device
+        if (openDevice() == false) return;
+
+//Bitmap image = BitmapFactory.decodeStream(inputStream);
+Bitmap image = Ticket.drawTextToBitmap(context, -1, "A01");
+
+        synchronized (lock) {
+            //***************************************************************************
+            // PRINT PICTURE
+            //***************************************************************************
+
+            try {
+                //Print (Left Align and Fit to printer width)
+                prnDevice.printImage(image, align, scaletofit, width);
+                if (feeds > 0) prnDevice.feed(feeds);
+            } catch (CustomException e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            } catch (Exception e) {
+                //Show Error
+                String errorMessage = "Printer Error: Print Picture Error...";
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            }
+        }
+
+    }
+
+    public void cut(Integer cutMode, Integer feeds) {
+
+        //open device
+        if (openDevice() == false) return;
+
+        synchronized (lock) {
+
+            try {
+                if (feeds > 0) prnDevice.feed(feeds);
+                prnDevice.cut(cutMode);
+            } catch (CustomException e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            } catch (Exception e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            }
+        }
     }
 
     public void testPrintText(String text) {

@@ -2,4 +2,6 @@
 
 <resources>
     <usb-device vendor-id="3540" />
+    <!--USB\VID_0DD4&PID_01A7\TG2460-H_NUM.:_0-->
+    <!--<usb-device vendor-id="0dd4" />-->
 </resources>

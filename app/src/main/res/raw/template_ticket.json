@@ -1,0 +1,80 @@
+{
+  "properties": [
+    {
+      "type": "image",
+      "source" : "assets",
+      "value": "image.png",
+      "align" : -1,
+      "scaletofit" : 1,
+      "feeds" : 0
+    },
+    {
+      "type": "image",
+      "source" : "assets",
+      "value": "image.png",
+      "align" : 0,
+      "scaletofit" : 2,
+      "width" : 200,
+      "feeds" : 0
+    },
+    {
+      "type": "image",
+      "source": "assets",
+      "value": "image.png",
+      "align": -1,
+      "scaletofit": 2,
+      "width": 200,
+      "feeds": 0
+    },
+    {
+      "type": "image",
+      "source": "assets",
+      "value": "image.png",
+      "align": -2,
+      "scaletofit": 2,
+      "width": 200,
+      "feeds": 0
+    },
+    {
+      "type": "text",
+      "value": "hello world1",
+      "charfont" : 0,
+      "charheight" : 1,
+      "charwidth" : 1,
+      "emphasized": false,
+      "italic" : false,
+      "underline" : false,
+      "justification" : 1,
+      "feeds" : 0
+    },
+    {
+      "type": "text",
+      "value": "hello world2",
+      "charfont" : 1,
+      "charheight" : 4,
+      "charwidth" : 4,
+      "emphasized": true,
+      "italic" : true,
+      "underline" : true,
+      "justification" : 1,
+      "feeds" : 0
+    },
+    {
+      "type": "text",
+      "value": "hello world3",
+      "charfont" : 0,
+      "charheight" : 7,
+      "charwidth" : 7,
+      "emphasized": true,
+      "italic" : true,
+      "underline" : true,
+      "justification" : 1,
+      "feeds" : 0
+    },
+    {
+      "type" : "cut",
+      "cutmode" : 0,
+      "feeds" : 2
+    }
+  ]
+}
