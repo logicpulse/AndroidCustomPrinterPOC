@@ -47,8 +47,8 @@
       "emphasized": false,
       "italic" : false,
       "underline" : false,
-      "justification" : 1,
-      "enabled" : false,
+      "align" : 0,
+      "enabled" : true,
       "feeds" : 0
     },
     {
@@ -60,7 +60,7 @@
       "emphasized": true,
       "italic" : true,
       "underline" : true,
-      "justification" : 1,
+      "align" : -1,
       "enabled" : false,
       "feeds" : 0
     },
@@ -73,24 +73,26 @@
       "emphasized": true,
       "italic" : true,
       "underline" : true,
-      "justification" : 1,
+      "align" : 1,
       "enabled" : false,
       "feeds" : 0
     },
     {
       "type": "imagetext",
+      "value": "A001",
       "align": 0,
       "scaletofit": 1,
       "width": 400,
       "height": 200,
       "typeface": "default",
-      "textsize": 42,
+      "textsize": 160,
       "showbackground" : true,
       "enabled" : false,
       "feeds": 0
     },
     {
       "type": "imagetext",
+      "value": "A002",
       "align": 0,
       "scaletofit": 1,
       "width": 400,
@@ -103,6 +105,7 @@
     },
     {
       "type": "imagetext",
+      "value": "A003",
       "align": -1,
       "scaletofit": 1,
       "width": 400,
@@ -115,6 +118,7 @@
     },
     {
       "type": "imagetext",
+      "value": "A004",
       "align": 0,
       "scaletofit": 1,
       "width": 400,
@@ -127,6 +131,7 @@
     },
     {
       "type": "imagetext",
+      "value": "A005",
       "align": 1,
       "scaletofit": 1,
       "width": 600,
@@ -139,20 +144,22 @@
     },
     {
       "type": "barcode",
-"barcodetype": "barcode_type_codabar",
-"barcodehritype" : "barcode_hri_none",
-"justification" : 0,
-          "width": 600,
-          "height": 200,
-      "enabled" : false,
+      "barcodetype": "barcode_type_ean13",
+      "barcodehritype" : "barcode_hri_bottom",
+      "barcodewidth": 3,
+      "value": "5012345678900",
+      "align" : 0,
+      "height": 200,
+      "enabled" : true,
       "feeds": 0
     },
     {
       "type": "barcode2d",
-"barcode2dtype": "BARCODE_TYPE_QRCODE",
-"justification" : 0,
-      "width": 600,
-      "enabled" : false,
+      "barcode2dtype": "barcode_type_qrcode",
+      "barcode2dwidth": 300,
+      "value": "logicpulse.com",
+      "align" : 0,
+      "enabled" : true,
       "feeds": 0
     },
     {

@@ -10,9 +10,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.text.Layout;
-import android.text.StaticLayout;
-import android.text.TextPaint;
 import android.util.Log;
 
 import com.logicpulse.logicpulsecustomprinter.CustomPrinterInterface;
@@ -96,24 +93,29 @@ public class Ticket {
                         Log.d(MainActivity.TAG, String.format("print: %s", node.getType()));
 
                         //Shared : Overrides (node Align with custom values)
-                        Integer align = -1;
+                        Integer alignText = 0;
+                        Integer alignImage = -1;
                         Paint.Align alignPaint = Paint.Align.CENTER;
+                        Integer alignBarCode = -1;
+
                         switch (node.getAlign()) {
                             case -1://left
-                                align = -0;
+                                alignText = 0;
+                                alignImage = 0;
                                 alignPaint = Paint.Align.LEFT;
+                                alignBarCode = 0;
                                 break;
                             case 0://center
-                                align = -1;
+                                alignText = 1;
+                                alignImage = -1;
                                 alignPaint = Paint.Align.CENTER;
+                                alignBarCode = -1;
                                 break;
                             case 1://right
-                                align = -2;
+                                alignText = 2;
+                                alignImage = -2;
                                 alignPaint = Paint.Align.RIGHT;
-                                break;
-                            default:
-                                align = -1;
-                                alignPaint = Paint.Align.CENTER;
+                                alignBarCode = -2;
                                 break;
                         }
 
@@ -127,15 +129,15 @@ public class Ticket {
                                 printerFont.setEmphasized(node.getEmphasized());
                                 printerFont.setItalic(node.getItalic());
                                 printerFont.setUnderline(node.getUnderline());
-                                printerFont.setJustification(node.getJustification());
                                 printerFont.setInternationalCharSet(node.getCharset());
+                                printerFont.setJustification(alignText);
                                 mPrinter.printText(node.getValue(), printerFont, node.getFeeds());
                                 break;
 
                             case "image":
                                 InputStream inputStream = Utils.getInputStreamFromRawResource(mContext, R.raw.image);
                                 Bitmap bitmapImage = BitmapFactory.decodeStream(inputStream);
-                                mPrinter.printImage(bitmapImage, align, node.getScaletofit(), node.getWidth(), node.getFeeds());
+                                mPrinter.printImage(bitmapImage, alignImage, node.getScaletofit(), node.getWidth(), node.getFeeds());
                                 break;
 
                             case "imagetext":
@@ -160,8 +162,82 @@ public class Ticket {
                                         typeface = Typeface.DEFAULT;
                                         break;
                                 }
-                                Bitmap bitmapImageText = Ticket.drawTextToBitmap(mContext, "A01", node.getWidth(), node.getHeight(), typeface, node.getTextSize(), alignPaint, node.getShowbackground());
-                                mPrinter.printImage(bitmapImageText, align, node.getScaletofit(), node.getWidth(), node.getFeeds());
+                                Bitmap bitmapImageText = Ticket.drawTextToBitmap(mContext, node.getValue(), node.getWidth(), node.getHeight(), typeface, node.getTextSize(), alignPaint, node.getShowbackground());
+                                mPrinter.printImage(bitmapImageText, alignImage, node.getScaletofit(), node.getWidth(), node.getFeeds());
+                                break;
+
+                            case "barcode":
+                                Integer barcodetype = -4;
+                                Integer barcodehritype = - 0;
+
+                                switch(node.getBarcodetype().toLowerCase()) {
+                                    case "barcode_type_codabar":
+                                        barcodetype = -1;
+                                        break;
+                                    case "barcode_type_upca":
+                                        barcodetype = -2;
+                                        break;
+                                    case "barcode_type_upce":
+                                        barcodetype = -3;
+                                        break;
+                                    case "barcode_type_ean13":
+                                        barcodetype = -4;
+                                        break;
+                                    case "barcode_type_ean8":
+                                        barcodetype = -5;
+                                        break;
+                                    case "barcode_type_code39":
+                                        barcodetype = -6;
+                                        break;
+                                    case "barcode_type_itf":
+                                        barcodetype = -7;
+                                        break;
+                                    case "barcode_type_code93":
+                                        barcodetype = -8;
+                                        break;
+                                    case "barcode_type_code128":
+                                        barcodetype = -9;
+                                        break;
+                                    case "barcode_type_code32":
+                                        barcodetype = -10;
+                                        break;
+                                }
+
+                                switch(node.getBarcodehritype().toLowerCase()) {
+                                    case "barcode_hri_none":
+                                        barcodehritype = 0;
+                                        break;
+                                    case "barcode_hri_top":
+                                        barcodehritype = 1;
+                                        break;
+                                    case "barcode_hri_bottom":
+                                        barcodehritype = 2;
+                                        break;
+                                    case "barcode_hri_topbottom":
+                                        barcodehritype = 3;
+                                        break;
+                                }
+                                mPrinter.printBarCode(node.getValue(), barcodetype, barcodehritype, alignBarCode, node.getBarCodeWidth(), node.getHeight(), node.getFeeds());
+                                break;
+
+                            case "barcode2d":
+                                Integer barcode2dtype = -101;
+
+                                switch(node.getBarcode2dtype().toLowerCase()) {
+                                    case "barcode_type_qrcode" :
+                                        barcode2dtype = -101;
+                                        break;
+                                    case "barcode_type_pdf417" :
+                                        barcode2dtype = -102;
+                                        break;
+                                    case "barcode_type_datamatrix" :
+                                        barcode2dtype = -103;
+                                        break;
+                                    case "barcode_type_aztec" :
+                                        barcode2dtype = -104;
+                                        break;
+                                }
+                                mPrinter.printBarCode2D(node.getValue(), barcode2dtype, alignBarCode, node.getBarCode2DWidth(), node.getFeeds());
                                 break;
 
                             case "cut":
@@ -194,7 +270,8 @@ public class Ticket {
     public static Bitmap drawTextToBitmap(Context context, String gText, int width, int height, Typeface typeface, int textSize, Paint.Align align,  boolean showBackground) {
 
         Resources resources = context.getResources();
-        float scale = resources.getDisplayMetrics().density;
+        //not used
+        //float scale = resources.getDisplayMetrics().density;
         Bitmap bitmap = Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
 
         android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
@@ -221,7 +298,7 @@ public class Ticket {
         // text typeface
         paint.setTypeface(typeface);
         // text size in pixels
-        paint.setTextSize((int) (textSize * scale));
+        paint.setTextSize((int) (textSize /* * scale*/));
         // text shadow
         paint.setShadowLayer(1f, 0f, 1f, Color.GRAY);
 

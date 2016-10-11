@@ -29,10 +29,10 @@ public class TicketTemplateNode {
     private Boolean emphasized = false;
     private Boolean italic = false;
     private Boolean underline = false;
-    //FONT_JUSTIFICATION_LEFT = 0;
-    //FONT_JUSTIFICATION_CENTER = 1;
-    //FONT_JUSTIFICATION_RIGHT = 2;
-    private Integer justification = 1;
+//FONT_JUSTIFICATION_LEFT = 0;
+//FONT_JUSTIFICATION_CENTER = 1;
+//FONT_JUSTIFICATION_RIGHT = 2;
+//private Integer justification = 1;
     //FONT_CS_DEFAULT = 0;
     //FONT_CS_RUSSIAN = 1;
     //FONT_CS_TURKISH = 2;
@@ -67,18 +67,22 @@ public class TicketTemplateNode {
     //BARCODE_TYPE_CODE93 - Indicates to print a CODE93 Barcode
     //BARCODE_TYPE_CODE128 - Indicates to print a CODE128 Barcode
     //BARCODE_TYPE_CODE32 - Indicates to print a CODE32 Barcode
-    private String barcodetype = "barcode_type_codabar";
+    private String barcodetype = "barcode_type_ean13";
     //BARCODE_HRI_NONE - Indicates no HRI on the Barcode
     //BARCODE_HRI_TOP - Indicates HRI on TOP of the Barcode
     //BARCODE_HRI_BOTTOM - Indicates HRI on BOTTOM of the Barcode
     //BARCODE_HRI_TOPBOTTOM - Indicates HRI on TOP and BOTTOM of the Barcode
     private String barcodehritype = "barcode_hri_none";
+    //Barcode Width expressed in dot (referred to the narrowest bar) : use lower than 4
+    //http://www.makebarcode.com/info/appnote/app_009.html
+    private Integer barcodewidth = 4;
     //Barcode2D
     //BARCODE_TYPE_QRCODE - Indicates to print a QRCODE Barcode 2D
     //BARCODE_TYPE_PDF417 - Indicates to print a PDF417 Barcode 2D
     //BARCODE_TYPE_DATAMATRIX - Indicates to print a DATAMATRIX Barcode 2D
     //BARCODE_TYPE_AZTEC - Indicates to print a AZTEC Barcode 2D
     private String barcode2dtype = "barcode_type_qrcode";
+    private Integer barcode2dwidth = 200;
 
     //Cut
     //CUT_TOTAL = 0;
@@ -130,9 +134,9 @@ public class TicketTemplateNode {
         return underline;
     }
 
-    public Integer getJustification() {
-        return justification;
-    }
+//public Integer getJustification() {
+//    return justification;
+//}
 
     public Integer getCharset() {
         return charset;
@@ -186,7 +190,15 @@ public class TicketTemplateNode {
         return barcodehritype;
     }
 
+    public Integer getBarCodeWidth() {
+        return barcodewidth;
+    }
+
     public String getBarcode2dtype() {
         return barcode2dtype;
+    }
+
+    public Integer getBarCode2DWidth() {
+        return barcode2dwidth;
     }
 }

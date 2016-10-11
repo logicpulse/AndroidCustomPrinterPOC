@@ -363,6 +363,51 @@ public class CustomPrinterInterface {
 
     }
 
+    public void printBarCode(String text, Integer barcodetype, Integer barcodehritype, Integer align, Integer barcodewidth, Integer height, Integer feeds) {
+        //open device
+        if (openDevice() == false) return;
+
+        synchronized (lock) {
+            try {
+                prnDevice.printBarcode(text, barcodetype, barcodehritype, align, barcodewidth, height);
+                if (feeds > 0) prnDevice.feed(feeds);
+            } catch (CustomException e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            } catch (Exception e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            }
+        }
+    }
+
+    public void printBarCode2D(String text, Integer barcodetype, Integer align, Integer barcode2dwidth, Integer feeds) {
+        //open device
+        if (openDevice() == false) return;
+
+        synchronized (lock) {
+
+            try {
+                prnDevice.printBarcode2D(text, barcodetype, align, barcode2dwidth);
+                if (feeds > 0) prnDevice.feed(feeds);
+            } catch (CustomException e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            } catch (Exception e) {
+                //Show Error
+                String errorMessage = String.format("Printer Error: %s", e.getMessage());
+                Utils.showAlert((Activity) context, errorMessage);
+                Log.e(MainActivity.TAG, errorMessage);
+            }
+        }
+    }
+
     public void cut(Integer cutMode, Integer feeds) {
 
         //open device
