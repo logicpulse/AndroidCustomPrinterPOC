@@ -56,6 +56,30 @@ public class TicketTemplateNode {
     private String typeface = "default";
     private Integer textsize = 20;
     private Boolean showbackground = false;
+    //Barcode
+    //BARCODE_TYPE_CODABAR - Indicates to print a CODEBAR Barcode
+    //BARCODE_TYPE_UPCA - Indicates to print a UPCA Barcode
+    //BARCODE_TYPE_UPCE - Indicates to print a UPCE Barcode
+    //BARCODE_TYPE_EAN13 - Indicates to print a EAN13 Barcode
+    //BARCODE_TYPE_EAN8 - Indicates to print a EAN8 Barcode
+    //BARCODE_TYPE_CODE39 - Indicates to print a CODE39 Barcode
+    //BARCODE_TYPE_ITF - Indicates to print a ITF Barcode
+    //BARCODE_TYPE_CODE93 - Indicates to print a CODE93 Barcode
+    //BARCODE_TYPE_CODE128 - Indicates to print a CODE128 Barcode
+    //BARCODE_TYPE_CODE32 - Indicates to print a CODE32 Barcode
+    private String barcodetype = "barcode_type_codabar";
+    //BARCODE_HRI_NONE - Indicates no HRI on the Barcode
+    //BARCODE_HRI_TOP - Indicates HRI on TOP of the Barcode
+    //BARCODE_HRI_BOTTOM - Indicates HRI on BOTTOM of the Barcode
+    //BARCODE_HRI_TOPBOTTOM - Indicates HRI on TOP and BOTTOM of the Barcode
+    private String barcodehritype = "barcode_hri_none";
+    //Barcode2D
+    //BARCODE_TYPE_QRCODE - Indicates to print a QRCODE Barcode 2D
+    //BARCODE_TYPE_PDF417 - Indicates to print a PDF417 Barcode 2D
+    //BARCODE_TYPE_DATAMATRIX - Indicates to print a DATAMATRIX Barcode 2D
+    //BARCODE_TYPE_AZTEC - Indicates to print a AZTEC Barcode 2D
+    private String barcode2dtype = "barcode_type_qrcode";
+
     //Cut
     //CUT_TOTAL = 0;
     //CUT_PARTIAL = 1;
@@ -152,5 +176,17 @@ public class TicketTemplateNode {
 
     public Integer getCutmode() {
         return cutmode;
+    }
+
+    public String getBarcodetype() {
+        return barcodetype;
+    }
+
+    public String getBarcodehritype() {
+        return barcodehritype;
+    }
+
+    public String getBarcode2dtype() {
+        return barcode2dtype;
     }
 }
