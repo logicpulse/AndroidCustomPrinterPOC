@@ -4,33 +4,35 @@
       "type": "image",
       "source" : "assets",
       "value": "image.png",
-      "align" : -1,
       "scaletofit" : 1,
-      "feeds" : 0
+      "feeds" : 0,
+      "enabled" : true
     },
     {
       "type": "image",
       "source" : "assets",
       "value": "image.png",
-      "align" : 0,
+      "align" : -1,
       "scaletofit" : 2,
       "width" : 200,
-      "feeds" : 0
+      "feeds" : 0,
+      "enabled" : false
     },
     {
       "type": "image",
       "source": "assets",
       "value": "image.png",
-      "align": -1,
+      "align": 0,
       "scaletofit": 2,
       "width": 200,
-      "feeds": 0
+      "feeds": 0,
+      "enabled" : false
     },
     {
       "type": "image",
       "source": "assets",
       "value": "image.png",
-      "align": -2,
+      "align": 1,
       "scaletofit": 2,
       "width": 200,
       "feeds": 0
@@ -70,6 +72,61 @@
       "underline" : true,
       "justification" : 1,
       "feeds" : 0
+    },
+    {
+      "type": "imagetext",
+      "align": 0,
+      "scaletofit": 1,
+      "width": 400,
+      "height": 200,
+      "typeface": "default",
+      "textsize": 42,
+      "showbackground" : true,
+      "feeds": 0
+    },
+    {
+      "type": "imagetext",
+      "align": 0,
+      "scaletofit": 1,
+      "width": 400,
+      "height": 200,
+      "typeface": "default_bold",
+      "showbackground" : false,
+      "textsize": 42,
+      "feeds": 0
+    },
+    {
+      "type": "imagetext",
+      "align": -1,
+      "scaletofit": 1,
+      "width": 400,
+      "height": 200,
+      "typeface": "monospace",
+      "textsize": 42,
+      "showbackground" : false,
+      "feeds": 0
+    },
+    {
+      "type": "imagetext",
+      "align": 0,
+      "scaletofit": 1,
+      "width": 400,
+      "height": 200,
+      "typeface": "sans_serif",
+      "textsize": 42,
+      "showbackground" : false,
+      "feeds": 0
+    },
+    {
+      "type": "imagetext",
+      "align": 1,
+      "scaletofit": 1,
+      "width": 600,
+      "height": 200,
+      "typeface": "serif",
+      "textsize": 42,
+      "showbackground" : false,
+      "feeds": 0
     },
     {
       "type" : "cut",

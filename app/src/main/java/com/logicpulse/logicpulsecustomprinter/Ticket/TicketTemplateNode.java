@@ -11,6 +11,7 @@ public class TicketTemplateNode {
     private String type;
     private String value;
     private Integer feeds = 0;
+    private Boolean enabled = true;
     //Text
     //FONT_TYPE_A = 0;
     //FONT_TYPE_B = 1;
@@ -40,9 +41,9 @@ public class TicketTemplateNode {
     //FONT_CS_GREEK = 5;
     private Integer charset = 0;
     //Image
-    //IMAGE_ALIGN_TO_LEFT = 0;
-    //IMAGE_ALIGN_TO_CENTER = -1;
-    //IMAGE_ALIGN_TO_RIGHT = -2;
+    //IMAGE_ALIGN_TO_LEFT = 0; (use -1)
+    //IMAGE_ALIGN_TO_CENTER = -1 (use 0);
+    //IMAGE_ALIGN_TO_RIGHT = -2 (use 1);
     private Integer align = -1;
     private String source = "assets";
     //IMAGE_SCALE_NONE = 0;
@@ -50,6 +51,11 @@ public class TicketTemplateNode {
     //IMAGE_SCALE_TO_WIDTH = 2;
     private Integer scaletofit = 0;
     private Integer width = 100;
+    //ImageText
+    Integer height = 100;
+    private String typeface = "default";
+    private Integer textsize = 20;
+    private Boolean showbackground = false;
     //Cut
     //CUT_TOTAL = 0;
     //CUT_PARTIAL = 1;
@@ -68,12 +74,12 @@ public class TicketTemplateNode {
         return value;
     }
 
-    public Integer getWidth() {
-        return width;
-    }
-
     public Integer getFeeds() {
         return feeds;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
     }
 
     public Integer getCharfont() {
@@ -118,6 +124,26 @@ public class TicketTemplateNode {
 
     public Integer getScaletofit() {
         return scaletofit;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public String getTypeface() {
+        return typeface;
+    }
+
+    public Integer getTextSize() {
+        return textsize;
+    }
+
+    public Boolean getShowbackground() {
+        return showbackground;
     }
 
     public Boolean getCut() {

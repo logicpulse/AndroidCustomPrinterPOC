@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             try {
                                 //Print
-                                mTicket.print(2);
+                                mTicket.print(1);
                             } catch (CustomException e) {
                                 e.printStackTrace();
                             }

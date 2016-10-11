@@ -9,6 +9,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 
 import com.logicpulse.logicpulsecustomprinter.CustomPrinterInterface;
@@ -42,7 +46,7 @@ public class Ticket {
 
         InputStream inputStream = Utils.getInputStreamFromRawResource(context, R.raw.template_ticket);
 
-        String  templateString = null;
+        String templateString = null;
 
         try {
             templateString = getStringFromInputStream(inputStream, "UTF-8");
@@ -82,35 +86,91 @@ public class Ticket {
             for (int i = 0; i < copies; i++) {
                 Log.d(MainActivity.TAG, String.format("print copy: %d", i));
 
-                for (Object property : mTicketTemplate.getProperties())
-                {
-                    node = (TicketTemplateNode) property;
-                    Log.d(MainActivity.TAG, String.format("print: %s", node.getType()));
+                for (Object property : mTicketTemplate.getProperties()) {
 
-                    switch (node.getType().toLowerCase()) {
-                        case "text":
-                            PrinterFont printerFont = new PrinterFont();
-                            printerFont.setCharFontType(node.getCharfont());
-                            printerFont.setCharHeight(node.getCharheight());
-                            printerFont.setCharWidth(node.getCharheight());
-                            printerFont.setEmphasized(node.getEmphasized());
-                            printerFont.setItalic(node.getItalic());
-                            printerFont.setUnderline(node.getUnderline());
-                            printerFont.setJustification(node.getJustification());
-                            printerFont.setInternationalCharSet(node.getCharset());
-                            mPrinter.printText(node.getValue(), printerFont, node.getFeeds());
-                            break;
-                        case "textimage":
-                            break;
-                        case "image":
-                            InputStream inputStream = Utils.getInputStreamFromRawResource(mContext, R.raw.image);
-                            mPrinter.printImage(inputStream, node.getAlign(), node.getScaletofit(), node.getWidth(), node.getFeeds());
-                            break;
-                        case "cut":
-                            mPrinter.cut(node.getCutmode(), node.getFeeds());
-                            break;
-                        default:
-                            break;
+                    node = (TicketTemplateNode) property;
+
+                    //Check Enabled State
+                    if (node.getEnabled()) {
+
+                        Log.d(MainActivity.TAG, String.format("print: %s", node.getType()));
+
+                        //Shared : Overrides (node Align with custom values)
+                        Integer align = -1;
+                        Paint.Align alignPaint = Paint.Align.CENTER;
+                        switch (node.getAlign()) {
+                            case -1://left
+                                align = -0;
+                                alignPaint = Paint.Align.LEFT;
+                                break;
+                            case 0://center
+                                align = -1;
+                                alignPaint = Paint.Align.CENTER;
+                                break;
+                            case 1://right
+                                align = -2;
+                                alignPaint = Paint.Align.RIGHT;
+                                break;
+                            default:
+                                align = -1;
+                                alignPaint = Paint.Align.CENTER;
+                                break;
+                        }
+
+                        switch (node.getType().toLowerCase()) {
+
+                            case "text":
+                                PrinterFont printerFont = new PrinterFont();
+                                printerFont.setCharFontType(node.getCharfont());
+                                printerFont.setCharHeight(node.getCharheight());
+                                printerFont.setCharWidth(node.getCharwidth());
+                                printerFont.setEmphasized(node.getEmphasized());
+                                printerFont.setItalic(node.getItalic());
+                                printerFont.setUnderline(node.getUnderline());
+                                printerFont.setJustification(node.getJustification());
+                                printerFont.setInternationalCharSet(node.getCharset());
+                                mPrinter.printText(node.getValue(), printerFont, node.getFeeds());
+                                break;
+
+                            case "image":
+                                InputStream inputStream = Utils.getInputStreamFromRawResource(mContext, R.raw.image);
+                                Bitmap bitmapImage = BitmapFactory.decodeStream(inputStream);
+                                mPrinter.printImage(bitmapImage, align, node.getScaletofit(), node.getWidth(), node.getFeeds());
+                                break;
+
+                            case "imagetext":
+                                Typeface typeface;
+                                switch (node.getTypeface().toLowerCase()) {
+                                    case "default":
+                                        typeface = Typeface.DEFAULT;
+                                        break;
+                                    case "default_bold":
+                                        typeface = Typeface.DEFAULT_BOLD;
+                                        break;
+                                    case "monospace":
+                                        typeface = Typeface.MONOSPACE;
+                                        break;
+                                    case "sans_serif":
+                                        typeface = Typeface.SANS_SERIF;
+                                        break;
+                                    case "serif":
+                                        typeface = Typeface.SERIF;
+                                        break;
+                                    default:
+                                        typeface = Typeface.DEFAULT;
+                                        break;
+                                }
+                                Bitmap bitmapImageText = Ticket.drawTextToBitmap(mContext, "A01", node.getWidth(), node.getHeight(), typeface, node.getTextSize(), alignPaint, node.getShowbackground());
+                                mPrinter.printImage(bitmapImageText, align, node.getScaletofit(), node.getWidth(), node.getFeeds());
+                                break;
+
+                            case "cut":
+                                mPrinter.cut(node.getCutmode(), node.getFeeds());
+                                break;
+
+                            default:
+                                break;
+                        }
                     }
                 }
             }
@@ -119,8 +179,7 @@ public class Ticket {
         return result;
     }
 
-    private String getStringFromInputStream(InputStream stream, String charsetName) throws IOException
-    {
+    private String getStringFromInputStream(InputStream stream, String charsetName) throws IOException {
         int n = 0;
         char[] buffer = new char[1024 * 4];
         InputStreamReader reader = new InputStreamReader(stream, charsetName);
@@ -131,16 +190,16 @@ public class Ticket {
 
     //Android - How to draw text on a bitmap
     //https://www.skoumal.net/en/android-how-draw-text-bitmap/
-public static Bitmap drawTextToBitmap(Context context, int resid, String gText) {
+    //https://www.skoumal.net/en/android-drawing-multiline-text-on-bitmap/
+    public static Bitmap drawTextToBitmap(Context context, String gText, int width, int height, Typeface typeface, int textSize, Paint.Align align,  boolean showBackground) {
 
         Resources resources = context.getResources();
         float scale = resources.getDisplayMetrics().density;
-        //Bitmap bitmap = BitmapFactory.decodeResource(resources, gResId);
-        Bitmap bitmap = Bitmap.createBitmap(400, 200, android.graphics.Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888);
 
         android.graphics.Bitmap.Config bitmapConfig = bitmap.getConfig();
         // set default bitmap config if none
-        if(bitmapConfig == null) {
+        if (bitmapConfig == null) {
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888;
         }
         // resource bitmaps are imutable,
@@ -149,20 +208,43 @@ public static Bitmap drawTextToBitmap(Context context, int resid, String gText) 
 
         Canvas canvas = new Canvas(bitmap);
 
+        //Show Background
+        int colorBackground = (showBackground) ? Color.rgb(200, 200, 200) : Color.WHITE;
+        canvas.drawColor(colorBackground);
+
         // new antialised Paint
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        //text align : Not used, used align in bottom with coords
+        //paint.setTextAlign(align);
         // text color - #3D3D3D
-//paint.setColor(Color.rgb(61, 61, 61));
+        paint.setColor(Color.BLACK);
+        // text typeface
+        paint.setTypeface(typeface);
         // text size in pixels
-        paint.setTextSize((int) (14 * scale));
+        paint.setTextSize((int) (textSize * scale));
         // text shadow
-        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
+        paint.setShadowLayer(1f, 0f, 1f, Color.GRAY);
 
         // draw text to the Canvas center
         Rect bounds = new Rect();
         paint.getTextBounds(gText, 0, gText.length(), bounds);
-        int x = (bitmap.getWidth() - bounds.width())/2;
-        int y = (bitmap.getHeight() + bounds.height())/2;
+
+        int x = 0;
+        int y = (bitmap.getHeight() + bounds.height()) / 2;
+
+        switch(align) {
+            case LEFT:
+                x = 0;
+                break;
+            case CENTER:
+                x = (bitmap.getWidth() - bounds.width()) / 2;
+                break;
+            case RIGHT:
+                x = (bitmap.getWidth() - bounds.width());
+                break;
+        default:
+            break;
+        }
 
         canvas.drawText(gText, x, y, paint);
 

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -333,13 +334,10 @@ public class CustomPrinterInterface {
         }
     }
 
-    public void printImage(InputStream inputStream, Integer align, Integer scaletofit, Integer width, Integer feeds) {
+    public void printImage(Bitmap bitmap, Integer align, Integer scaletofit, Integer width, Integer feeds) {
 
         //open device
         if (openDevice() == false) return;
-
-//Bitmap image = BitmapFactory.decodeStream(inputStream);
-Bitmap image = Ticket.drawTextToBitmap(context, -1, "A01");
 
         synchronized (lock) {
             //***************************************************************************
@@ -348,7 +346,7 @@ Bitmap image = Ticket.drawTextToBitmap(context, -1, "A01");
 
             try {
                 //Print (Left Align and Fit to printer width)
-                prnDevice.printImage(image, align, scaletofit, width);
+                prnDevice.printImage(bitmap, align, scaletofit, width);
                 if (feeds > 0) prnDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error
