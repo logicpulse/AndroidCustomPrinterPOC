@@ -9,8 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -25,7 +31,11 @@ import android.view.WindowManager;
 
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import it.custom.printer.api.android.CustomException;
 
@@ -37,15 +47,27 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "CustomPrinterPOC";
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
+
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+    //private static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
+    private static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
     public String mPackageName;
-    private PendingIntent pendingIntent;
     private CustomPrinterInterface mCustomPrinterInterface;
+    private Boolean mUseCustomPrinter = true;
     private Ringtone mRingtone;
     private Ticket mTicket;
+    private View mViewActivityMain;
+    //DeviceAdmin
     private ComponentName mDevAdminReceiver;
     private DevicePolicyManager mDevicePolicyManager;
+    //Usb
+    private PendingIntent mPendingIntentUsbPermission;
+    private UsbManager mUsbManager;
+    private HashMap<String, UsbDevice> mDeviceList;
+    private UsbDevice mUsbDevice;
+    private UsbInterface mUsbInterface;
+    private UsbEndpoint mUsbEndpoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        View viewActivityMain = findViewById(R.id.content_main);
+        mViewActivityMain = findViewById(R.id.content_main);
 
         //Get Package Name
         mPackageName = getApplicationContext().getPackageName();
@@ -81,23 +103,49 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Init CustomPrinterInterface
-        mCustomPrinterInterface = new CustomPrinterInterface(
-                //Fix for listViewDevices textColor
-                //never use getApplicationContext(). Just use your Activity as the Context
-                this /*this.getApplicationContext()*/,
-                viewActivityMain,
-                savedInstanceState
-        );
+        //KeepScreenOn WakeLock
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //Get System Services
+        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         //Register BroadcastReceiver()
         registerBroadcastReceiver();
 
-        //KeepScreenOn WakeLock
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        ////Init CustomPrinterInterface
+        //mCustomPrinterInterface = new CustomPrinterInterface(
+        //        //Fix for listViewDevices textColor
+        //        //never use getApplicationContext(). Just use your Activity as the Context
+        //        this /*this.getApplicationContext()*/,
+        //        viewActivityMain,
+        //        savedInstanceState
+        //);
 
-        //Device Admin
-        mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        //Init Ringtone
+        Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        mRingtone = RingtoneManager.getRingtone(this, defaultUri);
+
+        //If the Activity has not been created yet, it will be created and the intent arrive through the onCreate() method:
+        //if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
+        //    Log.d(TAG, "ACTION_USB_ATTACHED");
+        //        //Init Usb Devices
+        //    initUsbDevices(true);
+        //}
+
+        initUsbDevices(mUseCustomPrinter);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        //If the activity has already been created/instantiated, the event will arrive through the 'onNewIntent()' method:
+        //if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
+        //    Log.d(TAG, "ACTION_USB_ATTACHED");
+        //} else if (ACTION_USB_DETACHED.equalsIgnoreCase(getIntent().getAction())) {
+        //    Log.d(TAG, "ACTION_USB_DETACHED");
+        //}
     }
 
     @Override
@@ -109,11 +157,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        try {
-            mCustomPrinterInterface.onExit();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
+//        try {
+//            if (mCustomPrinterInterface != null) {
+//                mCustomPrinterInterface.onExit();
+//            }
+//            Utils.alarmStopPlay(mRingtone);
+//        } catch (Throwable throwable) {
+//            throwable.printStackTrace();
+//        }
     }
 
     @Override
@@ -147,8 +198,8 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_get_device_list) {
+            initUsbDevices(mUseCustomPrinter);
         }
         if (id == R.id.action_open_device) {
             actionOpenDevice();
@@ -188,9 +239,11 @@ public class MainActivity extends AppCompatActivity {
     private void registerBroadcastReceiver() {
         try {
 
-            //USB
-            pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
+            //Setup PendingIntent
+            mPendingIntentUsbPermission = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
             IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+            //filter.addAction(ACTION_USB_ATTACHED);
+            filter.addAction(ACTION_USB_DETACHED);
             //Register BroadcastReceiver
             registerReceiver(mUsbReceiver, filter);
 
@@ -220,6 +273,24 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(MainActivity.TAG, "permission denied for accessory " + accessory);
                     }
                 }
+            //} else if (mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+            //    synchronized (this) {
+            //        //UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            //        Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_ATTACHED");
+            //        initUsbDevices(mUseCustomPrinter);
+            //    }
+            } else if (mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                synchronized (this) {
+                    Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_DETACHED");
+                    try {
+                        //Close Application
+                        if (mUseCustomPrinter) {
+                            mCustomPrinterInterface.onExit();
+                        }
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                }
             }
         }
     };
@@ -240,8 +311,8 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //--------------------------------------------------------------------------------------------------------------
-    // Actions
+//--------------------------------------------------------------------------------------------------------------
+// Actions
 
     private void actionOpenDevice() {
         //Open it
@@ -296,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void actionTestScreenOff() {
 
-        //Screen Off
+//Screen Off
         final Activity finalContext = (Activity) this;
         Utils.powerManagerScreenOff(this, mPackageName);
 
@@ -322,5 +393,151 @@ public class MainActivity extends AppCompatActivity {
                 }, 60000);
             }
         });
+    }
+
+//--------------------------------------------------------------------------------------------------------------
+// Actions
+
+    private void requestPermission(UsbDevice pDevice) {
+        mUsbManager.requestPermission(pDevice, mPendingIntentUsbPermission);
+    }
+
+    private void initUsbDevices(Boolean useCustomPrinter) {
+        String deviceMessage;
+        mDeviceList = mUsbManager.getDeviceList();
+        Iterator<UsbDevice> deviceIterator = mDeviceList.values().iterator();
+        int deviceNo = 0;
+
+        while (deviceIterator.hasNext()) {
+            //Get Device to Work On
+            //UsbDevice device = deviceList.get("deviceName");
+            deviceNo++;
+            mUsbDevice = deviceIterator.next();
+            //your code
+            deviceMessage = String.format(
+                    "DeviceName[%d/%d]: %s, ProductId: %s, VendorId: %s",
+                    deviceNo,
+                    mDeviceList.size(),
+                    mUsbDevice.getDeviceName(),
+                    mUsbDevice.getProductId(),
+                    mUsbDevice.getVendorId()
+            );
+            Log.d(TAG, deviceMessage);
+
+            //Show Interfaces
+            for (int i = 0; i < mUsbDevice.getInterfaceCount(); i++) {
+
+                mUsbInterface = mUsbDevice.getInterface(i);
+                Log.d(TAG, String.format("Interface DescribeContents: %d", mUsbInterface.describeContents()));
+
+                //Request Permission: Show the Request Permission USB Dialog :)
+                requestPermission(mUsbDevice);
+
+                //Show Endpoints
+                for (int j = 0; j < mUsbInterface.getEndpointCount(); j++) {
+                    mUsbEndpoint = mUsbInterface.getEndpoint(j);
+                    Log.d(TAG, String.format("EndPoint DescribeContents: %d", mUsbEndpoint.describeContents()));
+
+                    //Test EndPoint : Custom TG2460H
+                    if (mUsbDevice.getVendorId() == 3540 /*&& mUsbDevice.getProductId() == 423*/) {
+
+                        //testEndPoint(mUsbDevice, mUsbInterface, mUsbEndpoint);
+                        Log.d(TAG, String.format("ProductId: %d / VendorId: %d", mUsbDevice.getProductId(), mUsbDevice.getVendorId()));
+
+                        //Init CustomPrinterInterface
+                        if (useCustomPrinter) {
+                            mCustomPrinterInterface = new CustomPrinterInterface(this, mViewActivityMain, mUsbDevice, mRingtone);
+                        }
+                    }
+                }
+            }
+        }
+        if (mDeviceList.size() <= 0) {
+            Log.d(TAG, "No Devices Found");
+        }
+    }
+
+    private void testEndPoint(UsbDevice pUsbDevice, UsbInterface pUsbInterface, UsbEndpoint pUsbEndpoint) {
+
+        final byte[] bytesData2 = new byte[24];
+        //esc @ init
+        bytesData2[0] = 0x1B;
+        bytesData2[1] = 0x40;
+        //Hello
+        bytesData2[2] = "H".getBytes()[0];
+        bytesData2[3] = "e".getBytes()[0];
+        bytesData2[4] = "l".getBytes()[0];
+        bytesData2[5] = "l".getBytes()[0];
+        bytesData2[6] = "o".getBytes()[0];
+
+        //LineFeed
+        bytesData2[7] = 0x0A;
+        bytesData2[8] = 0x0A;
+        bytesData2[9] = 0x0A;
+        bytesData2[10] = 0x0A;
+        bytesData2[11] = 0x0A;
+        //Cut the paper
+        //bytesData2[12] = 0x1D;
+        //bytesData2[13] = 0x56;
+        //bytesData2[14] = 0x42;
+        //bytesData2[15] = 0x03;
+        //Custom TG2460H
+        //bytesData2[12] = 0x1C;
+        //bytesData2[13] = (byte) 0xC0;
+        //bytesData2[14] = 0x34;
+
+        //TODO: Move to Settings
+        final int TIMEOUT = 0;
+        boolean forceClaim = true;
+
+        //Test PT String
+        final ByteArrayOutputStream textToPrint = new ByteArrayOutputStream();
+
+        try {
+            textToPrint.write(0x1B);
+            textToPrint.write("@".getBytes()[0]);
+            String str = "Á, À, Â, Ã, ã, Ê, Í, Ó, Ô, Õ, õ, Ú - á, à, â, ã, ã, ê, í, ó, ô, õ, õ, ú, ▒, ┤, █";
+            textToPrint.write(str.getBytes("CP860"));
+            textToPrint.write("€, $".getBytes("CP858"));
+
+            str = "0xD5";
+            textToPrint.write(str.getBytes("CP860"));
+
+            // LineFeed
+            textToPrint.write(0x0A);
+            textToPrint.write(0x0A);
+            textToPrint.write(0x0A);
+            // Cut the paper 1
+            //textToPrint.write(0x1D);
+            //textToPrint.write(0x56);
+            //textToPrint.write(0x42);
+            //textToPrint.write(0x03);
+            // Custom TG2460H
+            textToPrint.write(0x1C);
+            textToPrint.write(0xC0);
+            textToPrint.write(0x34);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            //Variable is accessed within inner class. Needs to be declared final
+            //http://stackoverflow.com/questions/14425826/variable-is-accessed-within-inner-class-needs-to-be-declared-final
+            final UsbEndpoint usbEndpoint = pUsbEndpoint;
+            final UsbDeviceConnection connection = mUsbManager.openDevice(pUsbDevice);
+            connection.claimInterface(pUsbInterface, forceClaim);
+
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    //do in another thread
+                    //connection.bulkTransfer(usbEndpoint, bytesData1, bytesData1.length, TIMEOUT);
+                    //connection.bulkTransfer(usbEndpoint, bytesData2, bytesData2.length, TIMEOUT);
+                    connection.bulkTransfer(usbEndpoint, textToPrint.toByteArray(), textToPrint.toByteArray().length, TIMEOUT);
+                }
+            }, 100);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

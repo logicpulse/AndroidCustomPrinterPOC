@@ -174,9 +174,9 @@ public class Ticket {
 
                             case "barcode":
                                 Integer barcodetype = -4;
-                                Integer barcodehritype = - 0;
+                                Integer barcodehritype = -0;
 
-                                switch(node.getBarcodetype().toLowerCase()) {
+                                switch (node.getBarcodetype().toLowerCase()) {
                                     case "barcode_type_codabar":
                                         barcodetype = -1;
                                         break;
@@ -209,7 +209,7 @@ public class Ticket {
                                         break;
                                 }
 
-                                switch(node.getBarcodehritype().toLowerCase()) {
+                                switch (node.getBarcodehritype().toLowerCase()) {
                                     case "barcode_hri_none":
                                         barcodehritype = 0;
                                         break;
@@ -229,17 +229,17 @@ public class Ticket {
                             case "barcode2d":
                                 Integer barcode2dtype = -101;
 
-                                switch(node.getBarcode2dtype().toLowerCase()) {
-                                    case "barcode_type_qrcode" :
+                                switch (node.getBarcode2dtype().toLowerCase()) {
+                                    case "barcode_type_qrcode":
                                         barcode2dtype = -101;
                                         break;
-                                    case "barcode_type_pdf417" :
+                                    case "barcode_type_pdf417":
                                         barcode2dtype = -102;
                                         break;
-                                    case "barcode_type_datamatrix" :
+                                    case "barcode_type_datamatrix":
                                         barcode2dtype = -103;
                                         break;
-                                    case "barcode_type_aztec" :
+                                    case "barcode_type_aztec":
                                         barcode2dtype = -104;
                                         break;
                                 }
@@ -273,7 +273,7 @@ public class Ticket {
     //Android - How to draw text on a bitmap
     //https://www.skoumal.net/en/android-how-draw-text-bitmap/
     //https://www.skoumal.net/en/android-drawing-multiline-text-on-bitmap/
-    public static Bitmap drawTextToBitmap(Context context, String gText, int width, int height, Typeface typeface, int textSize, Paint.Align align,  boolean showBackground) {
+    public static Bitmap drawTextToBitmap(Context context, String gText, int width, int height, Typeface typeface, int textSize, Paint.Align align, boolean showBackground) {
 
         Resources resources = context.getResources();
         //not used
@@ -315,7 +315,7 @@ public class Ticket {
         int x = 0;
         int y = (bitmap.getHeight() + bounds.height()) / 2;
 
-        switch(align) {
+        switch (align) {
             case LEFT:
                 x = 0;
                 break;
@@ -325,8 +325,8 @@ public class Ticket {
             case RIGHT:
                 x = (bitmap.getWidth() - bounds.width());
                 break;
-        default:
-            break;
+            default:
+                break;
         }
 
         canvas.drawText(gText, x, y, paint);
@@ -337,100 +337,104 @@ public class Ticket {
     //http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Formatter.html#dt
     private String replaceTextTokens(String input) {
 
-        Date currentDate = new Date();
         String result = input;
-        String replaceToken;
-        Resources resources = mContext.getResources();
 
-        List<String> tokens = new ArrayList();
-        tokens.add("app_company");
-        tokens.add("app_name");
-        tokens.add("app_version");
-        tokens.add("service_name");
-        tokens.add("service_ticket_no");
-        tokens.add("datetime");
-        tokens.add("date");
-        tokens.add("time");
-        tokens.add("image1");
-        tokens.add("image2");
-        tokens.add("image3");
-        tokens.add("image4");
-        tokens.add("image5");
-        tokens.add("text1");
-        tokens.add("text2");
-        tokens.add("text3");
-        tokens.add("text4");
-        tokens.add("text5");
-        tokens.add("barcode");
-        tokens.add("qrcode");
+        if (input != null) {
 
-        for (String token : tokens) {
-            Log.d(MainActivity.TAG, token);
+            Date currentDate = new Date();
+            String replaceToken;
+            Resources resources = mContext.getResources();
 
-            replaceToken = String.format("${%s}", token);
+            List<String> tokens = new ArrayList();
+            tokens.add("app_company");
+            tokens.add("app_name");
+            tokens.add("app_version");
+            tokens.add("service_name");
+            tokens.add("service_ticket_no");
+            tokens.add("datetime");
+            tokens.add("date");
+            tokens.add("time");
+            tokens.add("image1");
+            tokens.add("image2");
+            tokens.add("image3");
+            tokens.add("image4");
+            tokens.add("image5");
+            tokens.add("text1");
+            tokens.add("text2");
+            tokens.add("text3");
+            tokens.add("text4");
+            tokens.add("text5");
+            tokens.add("barcode");
+            tokens.add("qrcode");
 
-            if (result.contains(replaceToken)) {
-                switch(token) {
-                    case "app_company" :
-                        result = result.replace(replaceToken, resources.getString(R.string.app_company));
-                        break;
-                    case "app_name" :
-                        result = result.replace(replaceToken, resources.getString(R.string.app_name));
-                        break;
-                    case "app_version" :
-                        result = result.replace(replaceToken, resources.getString(R.string.app_version));
-                        break;
-                    case "service_name" :
-                        result = result.replace(replaceToken, "SERVICE_NAME");
-                        break;
-                    case "service_ticket_no" :
-                        result = result.replace(replaceToken, "SERVICE_TICKET_NO");
-                        break;
-                    case "datetime" :
-                        result = result.replace(replaceToken, Utils.formatDate(currentDate, "yyyy-MM-dd HH:mm:ss"));
-                        break;
-                    case "date" :
-                        result = result.replace(replaceToken, Utils.formatDate(currentDate, "yyyy-MM-dd"));
-                        break;
-                    case "time" :
-                        result = result.replace(replaceToken, Utils.formatDate(currentDate, "HH:mm:ss"));
-                        break;
-                    case "image1" :
-                        result = result.replace(replaceToken, "IMAGE1");
-                        break;
-                    case "image2" :
-                        result = result.replace(replaceToken, "IMAGE2");
-                        break;
-                    case "image3" :
-                        result = result.replace(replaceToken, "IMAGE3");
-                        break;
-                    case "image4" :
-                        result = result.replace(replaceToken, "IMAGE4");
-                        break;
-                    case "image5" :
-                        result = result.replace(replaceToken, "IMAGE5");
-                        break;
-                    case "text1" :
-                        result = result.replace(replaceToken, "TEXT1");
-                        break;
-                    case "text2" :
-                        result = result.replace(replaceToken, "TEXT2");
-                        break;
-                    case "text3" :
-                        result = result.replace(replaceToken, "TEXT3");
-                        break;
-                    case "text4" :
-                        result = result.replace(replaceToken, "TEXT4");
-                        break;
-                    case "text5" :
-                        result = result.replace(replaceToken, "TEXT5");
-                        break;
-                    case "barcode" :
-                        result = result.replace(replaceToken, "BARCODE");
-                        break;
-                    case "qrcode" :
-                        result = result.replace(replaceToken, "QRCODE");
-                        break;
+            for (String token : tokens) {
+                Log.d(MainActivity.TAG, token);
+
+                replaceToken = String.format("${%s}", token);
+
+                if (result.contains(replaceToken)) {
+                    switch (token) {
+                        case "app_company":
+                            result = result.replace(replaceToken, resources.getString(R.string.app_company));
+                            break;
+                        case "app_name":
+                            result = result.replace(replaceToken, resources.getString(R.string.app_name));
+                            break;
+                        case "app_version":
+                            result = result.replace(replaceToken, resources.getString(R.string.app_version));
+                            break;
+                        case "service_name":
+                            result = result.replace(replaceToken, "SERVICE_NAME");
+                            break;
+                        case "service_ticket_no":
+                            result = result.replace(replaceToken, "SERVICE_TICKET_NO");
+                            break;
+                        case "datetime":
+                            result = result.replace(replaceToken, Utils.formatDate(currentDate, "yyyy-MM-dd HH:mm:ss"));
+                            break;
+                        case "date":
+                            result = result.replace(replaceToken, Utils.formatDate(currentDate, "yyyy-MM-dd"));
+                            break;
+                        case "time":
+                            result = result.replace(replaceToken, Utils.formatDate(currentDate, "HH:mm:ss"));
+                            break;
+                        case "image1":
+                            result = result.replace(replaceToken, "IMAGE1");
+                            break;
+                        case "image2":
+                            result = result.replace(replaceToken, "IMAGE2");
+                            break;
+                        case "image3":
+                            result = result.replace(replaceToken, "IMAGE3");
+                            break;
+                        case "image4":
+                            result = result.replace(replaceToken, "IMAGE4");
+                            break;
+                        case "image5":
+                            result = result.replace(replaceToken, "IMAGE5");
+                            break;
+                        case "text1":
+                            result = result.replace(replaceToken, "TEXT1");
+                            break;
+                        case "text2":
+                            result = result.replace(replaceToken, "TEXT2");
+                            break;
+                        case "text3":
+                            result = result.replace(replaceToken, "TEXT3");
+                            break;
+                        case "text4":
+                            result = result.replace(replaceToken, "TEXT4");
+                            break;
+                        case "text5":
+                            result = result.replace(replaceToken, "TEXT5");
+                            break;
+                        case "barcode":
+                            result = result.replace(replaceToken, "BARCODE");
+                            break;
+                        case "qrcode":
+                            result = result.replace(replaceToken, "QRCODE");
+                            break;
+                    }
                 }
             }
         }

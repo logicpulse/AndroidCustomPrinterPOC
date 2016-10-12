@@ -94,12 +94,14 @@ public class Utils {
 
     public static void alarmStartPlay(Context context, Ringtone ringtone) {
         if (ringtone != null && !ringtone.isPlaying()) {
+            Log.d(MainActivity.TAG, "Alarm Started");
             ringtone.play();
         }
     }
 
     public static void alarmStopPlay(Ringtone ringtone) {
         if (ringtone != null && ringtone.isPlaying()) {
+            Log.d(MainActivity.TAG, "Alarm Stopped");
             ringtone.stop();
         }
     }

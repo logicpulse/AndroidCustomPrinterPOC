@@ -61,7 +61,7 @@
       "italic" : true,
       "underline" : true,
       "align" : -1,
-      "enabled" : true,
+      "enabled" : false,
       "feeds" : 0
     },
     {
