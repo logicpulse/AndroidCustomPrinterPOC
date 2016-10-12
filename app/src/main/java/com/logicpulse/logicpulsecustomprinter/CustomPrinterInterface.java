@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
+
 import java.io.InputStream;
 
 import it.custom.printer.api.android.CustomAndroidAPI;
@@ -24,7 +26,7 @@ import it.custom.printer.api.android.PrinterStatus;
  * Created by mario.monteiro on 06/10/2016.
  */
 
-public class CustomPrinterInterface {
+public class CustomPrinterInterface implements IThermalPrinter {
 
     private int GETSTATUS_TIME = 1000;
     private Context mContext;
@@ -69,14 +71,14 @@ public class CustomPrinterInterface {
         //Init everything
         //Init(view, savedInstanceState);
         //With Detected Usb
-        InitUsb();
+        Init();
 
         //Start Open
         //openDevice();
     }
 
     //Used with detected UsbDevice
-    private void InitUsb() {
+    public void Init() {
         //Force Detected mUsbDevice
         try {
             if (prnDevice == null) {
@@ -86,7 +88,7 @@ public class CustomPrinterInterface {
         } catch (CustomException e) {
             //Show Error
             e.printStackTrace();
-            String errorMessage = String.format("Error Init Printer: InitUsb");
+            String errorMessage = String.format("Error Init Printer: Init");
             Utils.showAlert((Activity) mContext, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
         }
@@ -284,7 +286,7 @@ public class CustomPrinterInterface {
 
         //Required to use the new InitUdb
         if (prnDevice == null) {
-            InitUsb();
+            Init();
             return true;
         }
         else {
@@ -348,14 +350,14 @@ public class CustomPrinterInterface {
 */
     }
 
-    public void printText(String text, PrinterFont printerFont, Integer feeds) {
+    public void printText(String text, Object printerFont, Integer feeds) {
 
         //open device
         if (openDevice() == false) return;
 
         synchronized (mLock) {
             try {
-                prnDevice.printTextLF(text, printerFont);
+                prnDevice.printTextLF(text, (PrinterFont) printerFont);
                 if (feeds > 0) prnDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error
@@ -614,7 +616,7 @@ public class CustomPrinterInterface {
         }
     }
 
-    public void onExit() throws Throwable {
+    public void destroy() throws Throwable {
         try {
             if (prnDevice != null) {
                 //Close device

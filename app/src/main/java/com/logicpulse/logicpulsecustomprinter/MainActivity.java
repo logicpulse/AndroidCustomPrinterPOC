@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        try {
 //            if (mCustomPrinterInterface != null) {
-//                mCustomPrinterInterface.onExit();
+//                mCustomPrinterInterface.destroy();
 //            }
 //            Utils.alarmStopPlay(mRingtone);
 //        } catch (Throwable throwable) {
@@ -285,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         //Close Application
                         if (mUseCustomPrinter) {
-                            mCustomPrinterInterface.onExit();
+                            mCustomPrinterInterface.destroy();
                         }
                     } catch (Throwable throwable) {
                         throwable.printStackTrace();
