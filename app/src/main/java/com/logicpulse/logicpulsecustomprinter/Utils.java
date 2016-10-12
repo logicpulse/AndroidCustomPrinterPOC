@@ -26,6 +26,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static android.content.ContentValues.TAG;
 
@@ -52,6 +55,17 @@ public class Utils {
         hexString = hexString.toUpperCase();
 
         return hexString;
+    }
+
+    public static String formatDate(Date date, String format) {
+        String result = "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        try {
+            result = dateFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static InputStream getInputStreamFromRawResource(Context context, int resourceId) {

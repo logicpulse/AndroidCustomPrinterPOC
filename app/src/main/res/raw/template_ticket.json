@@ -40,7 +40,7 @@
     },
     {
       "type": "text",
-      "value": "hello world1",
+      "value": "${app_company} ${app_name}",
       "charfont" : 0,
       "charheight" : 1,
       "charwidth" : 1,
@@ -53,7 +53,7 @@
     },
     {
       "type": "text",
-      "value": "hello world2",
+      "value": "Data: ${datetime}",
       "charfont" : 1,
       "charheight" : 4,
       "charwidth" : 4,
@@ -61,12 +61,12 @@
       "italic" : true,
       "underline" : true,
       "align" : -1,
-      "enabled" : false,
+      "enabled" : true,
       "feeds" : 0
     },
     {
       "type": "text",
-      "value": "hello world3",
+      "value": "Hora: ${time}",
       "charfont" : 0,
       "charheight" : 7,
       "charwidth" : 7,

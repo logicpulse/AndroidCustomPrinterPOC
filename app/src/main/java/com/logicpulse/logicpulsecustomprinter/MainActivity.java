@@ -38,8 +38,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "CustomPrinterPOC";
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-    private PendingIntent pendingIntent;
+
     public String mPackageName;
+    private PendingIntent pendingIntent;
     private CustomPrinterInterface mCustomPrinterInterface;
     private Ringtone mRingtone;
     private Ticket mTicket;
