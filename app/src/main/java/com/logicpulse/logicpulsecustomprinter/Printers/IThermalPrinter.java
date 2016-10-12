@@ -1,6 +1,10 @@
 package com.logicpulse.logicpulsecustomprinter.Printers;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.hardware.usb.UsbDevice;
+import android.media.Ringtone;
+import android.view.View;
 
 import java.io.InputStream;
 
@@ -9,8 +13,8 @@ import java.io.InputStream;
  */
 
 public interface IThermalPrinter {
-    void Init();
-    boolean openDevice();
+    void init(Context context, View view, UsbDevice usbDevice, Ringtone ringtone);
+    //boolean openDevice();
     void printText(String text, Object printerFont, Integer feeds);
     void printImage(Bitmap bitmap, Integer align, Integer scaletofit, Integer width, Integer feeds);
     void printBarCode(String text, Integer barcodetype, Integer barcodehritype, Integer align, Integer barcodewidth, Integer height, Integer feeds);

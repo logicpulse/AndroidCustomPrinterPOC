@@ -76,7 +76,7 @@ public class Ticket {
     public boolean print(int copies) throws CustomException {
 
         //open device
-        if (mPrinter.openDevice() == false) return false;
+        //if (mPrinter.openDevice() == false) return false;
 
         boolean result = false;
         TicketTemplateNode node;

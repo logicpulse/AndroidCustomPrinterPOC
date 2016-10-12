@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     public String mPackageName;
     private CustomPrinterInterface mCustomPrinterInterface;
-    private Boolean mUseCustomPrinter = true;
+    //private Boolean mUseCustomPrinter = true;
     private Ringtone mRingtone;
     private Ticket mTicket;
     private View mViewActivityMain;
@@ -90,12 +90,12 @@ public class MainActivity extends AppCompatActivity {
         //Get Package Name
         mPackageName = getApplicationContext().getPackageName();
 
-        //Init Network ADB only if not debugger attached, else we close adb, and debug
+        //init Network ADB only if not debugger attached, else we close adb, and debug
         if (!isDebuggerConnected()) {
             Utils.enableNetworkADB(true);
         }
 
-        //Init Permissions
+        //init Permissions
         final Context finalContext = this;
         runOnUiThread(new Runnable() {
             public void run() {
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         //Register BroadcastReceiver()
         registerBroadcastReceiver();
 
-        ////Init CustomPrinterInterface
+        ////init CustomPrinterInterface
         //mCustomPrinterInterface = new CustomPrinterInterface(
         //        //Fix for listViewDevices textColor
         //        //never use getApplicationContext(). Just use your Activity as the Context
@@ -122,18 +122,18 @@ public class MainActivity extends AppCompatActivity {
         //        savedInstanceState
         //);
 
-        //Init Ringtone
+        //init Ringtone
         Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         mRingtone = RingtoneManager.getRingtone(this, defaultUri);
 
         //If the Activity has not been created yet, it will be created and the intent arrive through the onCreate() method:
         //if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
         //    Log.d(TAG, "ACTION_USB_ATTACHED");
-        //        //Init Usb Devices
+        //        //init Usb Devices
         //    initUsbDevices(true);
         //}
 
-        initUsbDevices(mUseCustomPrinter);
+        initUsbDevices();
     }
 
     @Override
@@ -199,12 +199,12 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_get_device_list) {
-            initUsbDevices(mUseCustomPrinter);
+            initUsbDevices();
         }
-        if (id == R.id.action_open_device) {
-            actionOpenDevice();
-            return true;
-        }
+        //if (id == R.id.action_open_device) {
+        //    actionOpenDevice();
+        //    return true;
+        //}
         if (id == R.id.action_test_device_print_text) {
             actionTestDevicePrintText();
             return true;
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_DETACHED");
                     try {
                         //Close Application
-                        if (mUseCustomPrinter) {
+                        if (mCustomPrinterInterface != null) {
                             mCustomPrinterInterface.destroy();
                         }
                     } catch (Throwable throwable) {
@@ -314,10 +314,10 @@ public class MainActivity extends AppCompatActivity {
 //--------------------------------------------------------------------------------------------------------------
 // Actions
 
-    private void actionOpenDevice() {
-        //Open it
-        mCustomPrinterInterface.openDevice();
-    }
+    //private void actionOpenDevice() {
+    //    //Open it
+    //    mCustomPrinterInterface.openDevice();
+    //}
 
     private void actionTestDevicePrintText() {
         mCustomPrinterInterface.testPrintText(PRINT_TEXT);
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             if (mTicket == null) {
-                                //Init Ticket
+                                //init Ticket
                                 mTicket = new Ticket(context, mCustomPrinterInterface);
                             }
                             try {
@@ -402,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
         mUsbManager.requestPermission(pDevice, mPendingIntentUsbPermission);
     }
 
-    private void initUsbDevices(Boolean useCustomPrinter) {
+    private void initUsbDevices() {
         String deviceMessage;
         mDeviceList = mUsbManager.getDeviceList();
         Iterator<UsbDevice> deviceIterator = mDeviceList.values().iterator();
@@ -438,16 +438,18 @@ public class MainActivity extends AppCompatActivity {
                     mUsbEndpoint = mUsbInterface.getEndpoint(j);
                     Log.d(TAG, String.format("EndPoint DescribeContents: %d", mUsbEndpoint.describeContents()));
 
-                    //Test EndPoint : Custom TG2460H
+                    //Test EndPoint : DETECTED Custom TG2460H
                     if (mUsbDevice.getVendorId() == 3540 /*&& mUsbDevice.getProductId() == 423*/) {
 
                         //testEndPoint(mUsbDevice, mUsbInterface, mUsbEndpoint);
                         Log.d(TAG, String.format("ProductId: %d / VendorId: %d", mUsbDevice.getProductId(), mUsbDevice.getVendorId()));
 
-                        //Init CustomPrinterInterface
-                        if (useCustomPrinter) {
-                            mCustomPrinterInterface = new CustomPrinterInterface(this, mViewActivityMain, mUsbDevice, mRingtone);
-                        }
+                        //init CustomPrinterInterface
+                        mCustomPrinterInterface = new CustomPrinterInterface();
+                        mCustomPrinterInterface.init(this, mViewActivityMain, mUsbDevice, mRingtone);
+                    }
+                    //OtherPrinters
+                    else {
                     }
                 }
             }

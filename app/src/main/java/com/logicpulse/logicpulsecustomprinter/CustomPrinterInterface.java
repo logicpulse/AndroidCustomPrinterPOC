@@ -37,19 +37,23 @@ public class CustomPrinterInterface implements IThermalPrinter {
     private View mView;
     private Ringtone mRingtone;
     private UsbDevice mUsbDevice;
-    //Custom UI
+    //Public
+    private static CustomPrinter prnDevice = null;
+    //Custom UI : Removed
     //private static UsbDevice[] mUsbDeviceList = null;
     //private static ListView mListDevicesView;
     //private static ArrayAdapter<String> mListAdapter;
     //private static int mLastDeviceSelected = -1;
     //private static int mDeviceSelected = -1;
-    //Public
-    private static CustomPrinter prnDevice = null;
-    public static CustomPrinter getPrnDevice() {
-        return prnDevice;
-    }
+    //public static CustomPrinter getPrnDevice() {
+    //    return prnDevice;
+    //}
 
-    public CustomPrinterInterface(Context context, View view, /*Bundle savedInstanceState,*/ UsbDevice usbDevice, Ringtone ringtone) {
+    //Parametless Constructor
+    public CustomPrinterInterface() { }
+
+    //Used with detected UsbDevice
+    public void init(Context context, View view, UsbDevice usbDevice, Ringtone ringtone) {
 
         //Parameters
         this.mContext = context;
@@ -68,17 +72,15 @@ public class CustomPrinterInterface implements IThermalPrinter {
         //File > New > folder > assets Folder
         //Note : App must be selected before creating folder.
 
-        //Init everything
-        //Init(view, savedInstanceState);
+        //init everything
+        //init(view, savedInstanceState);
         //With Detected Usb
-        Init();
+        //init();
 
         //Start Open
         //openDevice();
-    }
 
-    //Used with detected UsbDevice
-    public void Init() {
+
         //Force Detected mUsbDevice
         try {
             if (prnDevice == null) {
@@ -88,16 +90,16 @@ public class CustomPrinterInterface implements IThermalPrinter {
         } catch (CustomException e) {
             //Show Error
             e.printStackTrace();
-            String errorMessage = String.format("Error Init Printer: Init");
+            String errorMessage = String.format("Error init Printer: init");
             Utils.showAlert((Activity) mContext, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
         }
     }
 
     /* USE Custom Search Devices : Working but disabled
-    private void Init(View view, Bundle savedInstanceState) {
+    private void init(View view, Bundle savedInstanceState) {
 
-        //Init Ringtone
+        //init Ringtone
         Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         mRingtone = RingtoneManager.getRingtone(mContext, defaultUri);
 
@@ -282,18 +284,18 @@ public class CustomPrinterInterface implements IThermalPrinter {
     };
 
     //Open the device if it isn't already opened
-    public boolean openDevice() {
+    //public boolean openDevice() {
 
-        //Required to use the new InitUdb
-        if (prnDevice == null) {
-            Init();
-            return true;
-        }
-        else {
-            return true;
-        }
+        ////Required to use the new InitUdb
+        //if (prnDevice == null) {
+        //    init();
+        //    return true;
+        //}
+        //else {
+        //    return true;
+        //}
 
-/*
+        /*
         //Device not selected
         if (mDeviceSelected == -1) {
             //Show Error
@@ -347,13 +349,13 @@ public class CustomPrinterInterface implements IThermalPrinter {
         }
         //Already opened
         return true;
-*/
-    }
+        */
+    //}
 
     public void printText(String text, Object printerFont, Integer feeds) {
 
         //open device
-        if (openDevice() == false) return;
+        //if (openDevice() == false) return;
 
         synchronized (mLock) {
             try {
@@ -376,7 +378,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
     public void printImage(Bitmap bitmap, Integer align, Integer scaletofit, Integer width, Integer feeds) {
 
         //open device
-        if (openDevice() == false) return;
+        //if (openDevice() == false) return;
 
         synchronized (mLock) {
             //***************************************************************************
@@ -404,7 +406,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
     public void printBarCode(String text, Integer barcodetype, Integer barcodehritype, Integer align, Integer barcodewidth, Integer height, Integer feeds) {
         //open device
-        if (openDevice() == false) return;
+        //if (openDevice() == false) return;
 
         synchronized (mLock) {
             try {
@@ -426,7 +428,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
     public void printBarCode2D(String text, Integer barcodetype, Integer align, Integer width, Integer feeds) {
         //open device
-        if (openDevice() == false) return;
+        //if (openDevice() == false) return;
 
         synchronized (mLock) {
 
@@ -450,7 +452,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
     public void cut(Integer cutMode, Integer feeds) {
 
         //open device
-        if (openDevice() == false) return;
+        //if (openDevice() == false) return;
 
         synchronized (mLock) {
 
@@ -475,9 +477,9 @@ public class CustomPrinterInterface implements IThermalPrinter {
         PrinterFont fntPrinterNormal = new PrinterFont();
         PrinterFont fntPrinterBold2X = new PrinterFont();
         String strTextToPrint;
+
         //open device
-        if (openDevice() == false)
-            return;
+        //if (openDevice() == false) return;
 
         //Get Text
         strTextToPrint = text;
@@ -539,8 +541,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
     public void testPrintImage(InputStream inputStream) {
         //open device
-        if (openDevice() == false)
-            return;
+        //if (openDevice() == false) return;
 
         // load image
 

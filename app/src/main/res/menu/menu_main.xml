@@ -9,11 +9,11 @@
         android:visible="false"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_open_device"
-        android:orderInCategory="100"
-        android:title="@string/action_open_device"
-        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/action_open_device"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:title="@string/action_open_device"-->
+        <!--app:showAsAction="never" />-->
 
     <item
         android:id="@+id/action_test_device_print_text"
