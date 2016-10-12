@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.logicpulse.logicpulsecustomprinter">
 
+    <!-- FEATURES -->
+    <uses-feature android:name="android.hardware.usb.host"/>
+
     <!-- BLUETOOTH PERMISSIONS -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -20,7 +23,7 @@
     <uses-permission android:name="android.permission.USES_POLICY_FORCE_LOCK" />
     <!-- DEVICEADMIN -->
     <!--https://developer.android.com/guide/topics/admin/device-admin.html-->
-    <uses-permission android:name="android.permission.BIND_DEVICE_ADMIN" />
+    <!--<uses-permission android:name="android.permission.BIND_DEVICE_ADMIN" />-->
 
     <application
         android:allowBackup="true"
