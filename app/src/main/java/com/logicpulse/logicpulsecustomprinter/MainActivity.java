@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     private static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
+    private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 
     public String mPackageName;
     //private CustomPrinterDevice mCustomPrinterDevice;
@@ -62,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private Ticket mTicket;
     private View mViewActivityMain;
     //DeviceAdmin
-    private ComponentName mDevAdminReceiver;
+    private Boolean mAdminActive;
+    // Interaction with the DevicePolicyManager
+    private ComponentName mDeviceAdmin;
     private DevicePolicyManager mDevicePolicyManager;
     //Usb
     private PendingIntent mPendingIntentUsbPermission;
@@ -111,7 +114,11 @@ public class MainActivity extends AppCompatActivity {
 
         //Get System Services
         mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
+        //Admin Mode
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mDeviceAdmin = new ComponentName(this, DeviceAdmin.class);
+        mAdminActive = isActiveAdmin();
 
         //Register BroadcastReceiver()
         registerBroadcastReceiver();
@@ -158,6 +165,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        enableDeviceCapabilitiesArea(mAdminActive);
     }
 
     @Override
@@ -235,6 +244,10 @@ public class MainActivity extends AppCompatActivity {
             actionTestTicket();
             return true;
         }
+        if (id == R.id.action_toggle_admin_mode) {
+            actionToggleAdmin();
+            return true;
+        }
         if (id == R.id.action_test_screen_off) {
             actionTestScreenOff();
             return true;
@@ -283,14 +296,14 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(MainActivity.TAG, "permission denied for accessory " + accessory);
                     }
                 }
-            //} else if (mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-            //    synchronized (this) {
-            //        Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_ATTACHED");
-            //        mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            //        //init CustomPrinterDevice
-            //        //mCustomPrinterDevice = new CustomPrinterDevice();
-            //        mCustomPrinterDevice.init(context, mUsbDevice, mViewActivityMain, mRingtone);
-            //    }
+                //} else if (mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                //    synchronized (this) {
+                //        Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_ATTACHED");
+                //        mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                //        //init CustomPrinterDevice
+                //        //mCustomPrinterDevice = new CustomPrinterDevice();
+                //        mCustomPrinterDevice.init(context, mUsbDevice, mViewActivityMain, mRingtone);
+                //    }
             } else if (mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 synchronized (this) {
                     Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_DETACHED");
@@ -382,6 +395,26 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean actionToggleAdmin() {
+
+        if (!mAdminActive) {
+            // Launch the activity to have the user enable our admin.
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdmin);
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, this.getString(R.string.add_admin_extra_app_text));
+            startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
+            // return false - don't update checkbox until we're really active
+            return false;
+
+        } else {
+            mDevicePolicyManager.removeActiveAdmin(mDeviceAdmin);
+            enableDeviceCapabilitiesArea(false);
+            mAdminActive = false;
+        }
+
+        return false;
+    }
+
     private void actionTestScreenOff() {
 
         //Screen Off
@@ -412,8 +445,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//--------------------------------------------------------------------------------------------------------------
-// Actions
+    //--------------------------------------------------------------------------------------------------------------
+    // Actions
 
     private void requestPermission(UsbDevice pDevice) {
         mUsbManager.requestPermission(pDevice, mPendingIntentUsbPermission);
@@ -558,5 +591,29 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    // Actions
+
+    /**
+     * Helper to determine if we are an active admin
+     */
+    private boolean isActiveAdmin() {
+        return mDevicePolicyManager.isAdminActive(mDeviceAdmin);
+    }
+
+    /**
+     * Updates the device capabilities area (dis/enabling) as the admin is (de)activated
+     */
+    private void enableDeviceCapabilitiesArea(boolean enabled) {
+        //mDisableCameraCheckbox.setEnabled(enabled);
+        //mDisableKeyguardWidgetsCheckbox.setEnabled(enabled);
+        //mDisableKeyguardSecureCameraCheckbox.setEnabled(enabled);
+        //mDisableKeyguardNotificationCheckbox.setEnabled(enabled);
+        //mDisableKeyguardUnredactedCheckbox.setEnabled(enabled);
+        //mDisableKeyguardTrustAgentCheckbox.setEnabled(enabled);
+        //mTrustAgentComponent.setEnabled(enabled);
+        //mTrustAgentFeatures.setEnabled(enabled);
     }
 }
