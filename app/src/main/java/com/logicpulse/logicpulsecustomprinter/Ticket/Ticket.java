@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
 import com.logicpulse.logicpulsecustomprinter.MainActivity;
+import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
 import com.logicpulse.logicpulsecustomprinter.R;
 import com.logicpulse.logicpulsecustomprinter.Utils;
 import com.solidfire.gson.Gson;
@@ -37,9 +38,9 @@ public class Ticket {
 
     private Context mContext;
     private TicketTemplate mTicketTemplate = null;
-    private CustomPrinterDevice mPrinter;
+    private IThermalPrinter mPrinter;
 
-    public Ticket(Context context, CustomPrinterDevice printer) {
+    public Ticket(Context context, IThermalPrinter printer) {
 
         this.mContext = context;
         this.mPrinter = printer;

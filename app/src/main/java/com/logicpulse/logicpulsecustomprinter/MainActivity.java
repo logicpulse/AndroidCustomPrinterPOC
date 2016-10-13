@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 
 import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
+import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
 import java.io.ByteArrayOutputStream;
@@ -54,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
     public String mPackageName;
-    private CustomPrinterDevice mCustomPrinterDevice;
+    //private CustomPrinterDevice mCustomPrinterDevice;
+    private IThermalPrinter mCustomPrinterDevice;
     //private Boolean mUseCustomPrinter = true;
     private Ringtone mRingtone;
     private Ticket mTicket;
