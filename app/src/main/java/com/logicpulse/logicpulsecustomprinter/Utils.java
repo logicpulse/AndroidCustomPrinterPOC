@@ -38,7 +38,7 @@ import static android.content.ContentValues.TAG;
 
 public class Utils {
 
-    //Used in CustomPrinterInterface
+    //Used in CustomPrinterDevice
     public static String intToHexString(int iValue, int num0chars) {
         String hexString;
 

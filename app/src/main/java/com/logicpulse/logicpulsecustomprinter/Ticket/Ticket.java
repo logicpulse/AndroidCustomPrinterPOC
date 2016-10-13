@@ -12,7 +12,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Log;
 
-import com.logicpulse.logicpulsecustomprinter.CustomPrinterInterface;
+import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
 import com.logicpulse.logicpulsecustomprinter.MainActivity;
 import com.logicpulse.logicpulsecustomprinter.R;
 import com.logicpulse.logicpulsecustomprinter.Utils;
@@ -37,9 +37,9 @@ public class Ticket {
 
     private Context mContext;
     private TicketTemplate mTicketTemplate = null;
-    private CustomPrinterInterface mPrinter;
+    private CustomPrinterDevice mPrinter;
 
-    public Ticket(Context context, CustomPrinterInterface printer) {
+    public Ticket(Context context, CustomPrinterDevice printer) {
 
         this.mContext = context;
         this.mPrinter = printer;

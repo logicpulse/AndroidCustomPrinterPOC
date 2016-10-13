@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
 import java.io.ByteArrayOutputStream;
@@ -49,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
 
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-    //private static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
+    private static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     private static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
     public String mPackageName;
-    private CustomPrinterInterface mCustomPrinterInterface;
+    private CustomPrinterDevice mCustomPrinterDevice;
     //private Boolean mUseCustomPrinter = true;
     private Ringtone mRingtone;
     private Ticket mTicket;
@@ -113,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
         //Register BroadcastReceiver()
         registerBroadcastReceiver();
 
-        ////init CustomPrinterInterface
-        //mCustomPrinterInterface = new CustomPrinterInterface(
+        ////init CustomPrinterDevice
+        //mCustomPrinterDevice = new CustomPrinterDevice(
         //        //Fix for listViewDevices textColor
         //        //never use getApplicationContext(). Just use your Activity as the Context
         //        this /*this.getApplicationContext()*/,
@@ -127,26 +128,30 @@ public class MainActivity extends AppCompatActivity {
         mRingtone = RingtoneManager.getRingtone(this, defaultUri);
 
         //If the Activity has not been created yet, it will be created and the intent arrive through the onCreate() method:
-        //if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
-        //    Log.d(TAG, "ACTION_USB_ATTACHED");
-        //        //init Usb Devices
-        //    initUsbDevices(true);
-        //}
-
-        initUsbDevices();
+        if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
+            Log.d(TAG, "ACTION_USB_ATTACHED");
+            //init Usb Devices
+            initUsbDevices();
+        } else {
+            initUsbDevices();
+        }
     }
 
+    /*
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
         //If the activity has already been created/instantiated, the event will arrive through the 'onNewIntent()' method:
-        //if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
-        //    Log.d(TAG, "ACTION_USB_ATTACHED");
-        //} else if (ACTION_USB_DETACHED.equalsIgnoreCase(getIntent().getAction())) {
-        //    Log.d(TAG, "ACTION_USB_DETACHED");
-        //}
+        if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+            Log.d(TAG, "ACTION_USB_ATTACHED");
+            mUsbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            requestPermission(mUsbDevice);
+        } else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+            Log.d(TAG, "ACTION_USB_DETACHED");
+        }
     }
+    */
 
     @Override
     protected void onResume() {
@@ -157,14 +162,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-//        try {
-//            if (mCustomPrinterInterface != null) {
-//                mCustomPrinterInterface.destroy();
-//            }
-//            Utils.alarmStopPlay(mRingtone);
-//        } catch (Throwable throwable) {
-//            throwable.printStackTrace();
-//        }
+        unregisterReceiver(mUsbReceiver);
+        unregisterReceiver(mPowerManagerReceiver);
+
+        try {
+            if (mCustomPrinterDevice != null) {
+                mCustomPrinterDevice.close();
+            }
+            Utils.alarmStopPlay(mRingtone);
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     @Override
@@ -242,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
             //Setup PendingIntent
             mPendingIntentUsbPermission = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
             IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-            //filter.addAction(ACTION_USB_ATTACHED);
+            filter.addAction(ACTION_USB_ATTACHED);
             filter.addAction(ACTION_USB_DETACHED);
             //Register BroadcastReceiver
             registerReceiver(mUsbReceiver, filter);
@@ -275,21 +283,28 @@ public class MainActivity extends AppCompatActivity {
                 }
             //} else if (mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
             //    synchronized (this) {
-            //        //UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             //        Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_ATTACHED");
-            //        initUsbDevices(mUseCustomPrinter);
+            //        mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+            //        //init CustomPrinterDevice
+            //        //mCustomPrinterDevice = new CustomPrinterDevice();
+            //        mCustomPrinterDevice.init(context, mUsbDevice, mViewActivityMain, mRingtone);
             //    }
             } else if (mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 synchronized (this) {
                     Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_DETACHED");
-                    try {
-                        //Close Application
-                        if (mCustomPrinterInterface != null) {
-                            mCustomPrinterInterface.destroy();
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            try {
+                                //Close Application
+                                if (mCustomPrinterDevice != null) {
+                                    //mCustomPrinterDevice.close();
+                                    mCustomPrinterDevice.close();
+                                }
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
                         }
-                    } catch (Throwable throwable) {
-                        throwable.printStackTrace();
-                    }
+                    });
                 }
             }
         }
@@ -311,21 +326,21 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-//--------------------------------------------------------------------------------------------------------------
-// Actions
+    //--------------------------------------------------------------------------------------------------------------
+    // Actions
 
     //private void actionOpenDevice() {
     //    //Open it
-    //    mCustomPrinterInterface.openDevice();
+    //    mCustomPrinterDevice.openDevice();
     //}
 
     private void actionTestDevicePrintText() {
-        mCustomPrinterInterface.testPrintText(PRINT_TEXT);
+        mCustomPrinterDevice.testPrintText(PRINT_TEXT);
     }
 
     private void actionTestDevicePrintImage() {
         InputStream inputStream = Utils.getInputStreamFromRawResource(this, R.raw.image);
-        mCustomPrinterInterface.testPrintImage(inputStream);
+        mCustomPrinterDevice.testPrintImage(inputStream);
     }
 
     private void actionTestAlarmStart() {
@@ -340,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Context context = this;
 
-        if (mCustomPrinterInterface != null) {
+        if (mCustomPrinterDevice != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -350,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             if (mTicket == null) {
                                 //init Ticket
-                                mTicket = new Ticket(context, mCustomPrinterInterface);
+                                mTicket = new Ticket(context, mCustomPrinterDevice);
                             }
                             try {
                                 //Print
@@ -367,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void actionTestScreenOff() {
 
-//Screen Off
+        //Screen Off
         final Activity finalContext = (Activity) this;
         Utils.powerManagerScreenOff(this, mPackageName);
 
@@ -444,9 +459,9 @@ public class MainActivity extends AppCompatActivity {
                         //testEndPoint(mUsbDevice, mUsbInterface, mUsbEndpoint);
                         Log.d(TAG, String.format("ProductId: %d / VendorId: %d", mUsbDevice.getProductId(), mUsbDevice.getVendorId()));
 
-                        //init CustomPrinterInterface
-                        mCustomPrinterInterface = new CustomPrinterInterface();
-                        mCustomPrinterInterface.init(this, mViewActivityMain, mUsbDevice, mRingtone);
+                        //init CustomPrinterDevice
+                        mCustomPrinterDevice = new CustomPrinterDevice();
+                        mCustomPrinterDevice.init(this, mUsbDevice, mViewActivityMain, mRingtone);
                     }
                     //OtherPrinters
                     else {

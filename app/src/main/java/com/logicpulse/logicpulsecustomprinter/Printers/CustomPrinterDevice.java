@@ -1,6 +1,5 @@
-package com.logicpulse.logicpulsecustomprinter;
+package com.logicpulse.logicpulsecustomprinter.Printers;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,7 +11,9 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
+import com.logicpulse.logicpulsecustomprinter.MainActivity;
+import com.logicpulse.logicpulsecustomprinter.R;
+import com.logicpulse.logicpulsecustomprinter.Utils;
 
 import java.io.InputStream;
 
@@ -26,7 +27,7 @@ import it.custom.printer.api.android.PrinterStatus;
  * Created by mario.monteiro on 06/10/2016.
  */
 
-public class CustomPrinterInterface implements IThermalPrinter {
+public class CustomPrinterDevice implements IThermalPrinter {
 
     private int GETSTATUS_TIME = 1000;
     private Context mContext;
@@ -38,22 +39,20 @@ public class CustomPrinterInterface implements IThermalPrinter {
     private Ringtone mRingtone;
     private UsbDevice mUsbDevice;
     //Public
-    private static CustomPrinter prnDevice = null;
+    private static CustomPrinter mPrinterDevice = null;
     //Custom UI : Removed
-    //private static UsbDevice[] mUsbDeviceList = null;
+    private static UsbDevice[] mUsbDeviceList = null;
     //private static ListView mListDevicesView;
     //private static ArrayAdapter<String> mListAdapter;
     //private static int mLastDeviceSelected = -1;
     //private static int mDeviceSelected = -1;
-    //public static CustomPrinter getPrnDevice() {
-    //    return prnDevice;
-    //}
+    //public static CustomPrinter getPrnDevice() { return mPrinterDevice; }
 
     //Parametless Constructor
-    public CustomPrinterInterface() { }
+    public CustomPrinterDevice() { }
 
     //Used with detected UsbDevice
-    public void init(Context context, View view, UsbDevice usbDevice, Ringtone ringtone) {
+    public void init(Context context, UsbDevice usbDevice, View view, Ringtone ringtone) {
 
         //Parameters
         this.mContext = context;
@@ -80,18 +79,26 @@ public class CustomPrinterInterface implements IThermalPrinter {
         //Start Open
         //openDevice();
 
-
         //Force Detected mUsbDevice
         try {
-            if (prnDevice == null) {
-                CustomAndroidAPI customAndroidAPI = new CustomAndroidAPI();
-                prnDevice = customAndroidAPI.getPrinterDriverUSB(mUsbDevice, mContext);
+            if (mPrinterDevice == null) {
+
+                //Try to get Device with EnumUsbDevices
+                mUsbDeviceList = CustomAndroidAPI.EnumUsbDevices(mContext);
+
+                //if ((mUsbDeviceList != null) || (mUsbDeviceList.length > 0)) {
+                //    mPrinterDevice = new CustomAndroidAPI().getPrinterDriverUSB(mUsbDeviceList[0], context);
+                //}
+                //Try to get Device with mUsbDevice
+                //else {
+                    mPrinterDevice = new CustomAndroidAPI().getPrinterDriverUSB(mUsbDevice, context);
+                //}
             }
         } catch (CustomException e) {
             //Show Error
             e.printStackTrace();
             String errorMessage = String.format("Error init Printer: init");
-            Utils.showAlert((Activity) mContext, errorMessage);
+            //Utils.showAlert((Activity) mContext, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
         }
     }
@@ -175,11 +182,11 @@ public class CustomPrinterInterface implements IThermalPrinter {
             TextView txtView;
 
             //If the device is open
-            if (prnDevice != null) {
+            if (mPrinterDevice != null) {
                 synchronized (mLock) {
                     try {
                         //Get printer Status
-                        PrinterStatus prnSts = prnDevice.getPrinterFullStatus();
+                        PrinterStatus prnSts = mPrinterDevice.getPrinterFullStatus();
 
                         //if can getPrinterFullStatus, disable connection error
                         connectionError = false;
@@ -205,11 +212,11 @@ public class CustomPrinterInterface implements IThermalPrinter {
                         ckbox.setChecked(prnSts.stsLFPRESSED);
 
                         //Get printer name
-                        printerName = prnDevice.getPrinterName();
+                        printerName = mPrinterDevice.getPrinterName();
 
                         //Show Text PrinterName
                         txtView = (TextView) mView.findViewById(R.id.textPrinterName);
-                        txtView.setText("Printer Name:" + printerName + " (" + prnDevice.getPrinterInfo() + ")");
+                        txtView.setText("Printer Name:" + printerName + " (" + mPrinterDevice.getPrinterInfo() + ")");
 
                         //Alarm Work
                         if (connectionError || prnSts.stsNOPAPER == true || prnSts.stsPAPERJAM == true) {
@@ -287,7 +294,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
     //public boolean openDevice() {
 
         ////Required to use the new InitUdb
-        //if (prnDevice == null) {
+        //if (mPrinterDevice == null) {
         //    init();
         //    return true;
         //}
@@ -310,7 +317,7 @@ public class CustomPrinterInterface implements IThermalPrinter {
             if (mDeviceSelected != mLastDeviceSelected) {
                 try {
                     //Force close
-                    prnDevice.close();
+                    mPrinterDevice.close();
                 } catch (CustomException e) {
                     //Show Error
                     String errorMessage = String.format("Printer Error: %s", e.getMessage());
@@ -321,15 +328,15 @@ public class CustomPrinterInterface implements IThermalPrinter {
                     //Show error
                     return false;
                 }
-                prnDevice = null;
+                mPrinterDevice = null;
             }
         }
 
         //If i never open it
-        if (prnDevice == null) {
+        if (mPrinterDevice == null) {
             try {
                 //Open and connect it
-                prnDevice = new CustomAndroidAPI().getPrinterDriverUSB(mUsbDeviceList[mDeviceSelected], mContext);
+                mPrinterDevice = new CustomAndroidAPI().getPrinterDriverUSB(mUsbDeviceList[mDeviceSelected], mContext);
                 //Save last device selected
                 mLastDeviceSelected = mDeviceSelected;
                 return true;
@@ -359,17 +366,17 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
         synchronized (mLock) {
             try {
-                prnDevice.printTextLF(text, (PrinterFont) printerFont);
-                if (feeds > 0) prnDevice.feed(feeds);
+                mPrinterDevice.printTextLF(text, (PrinterFont) printerFont);
+                if (feeds > 0) mPrinterDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
@@ -387,17 +394,17 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
             try {
                 //Print (Left Align and Fit to printer width)
-                prnDevice.printImage(bitmap, align, scaletofit, width);
-                if (feeds > 0) prnDevice.feed(feeds);
+                mPrinterDevice.printImage(bitmap, align, scaletofit, width);
+                if (feeds > 0) mPrinterDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
@@ -410,17 +417,17 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
         synchronized (mLock) {
             try {
-                prnDevice.printBarcode(text, barcodetype, barcodehritype, align, barcodewidth, height);
-                if (feeds > 0) prnDevice.feed(feeds);
+                mPrinterDevice.printBarcode(text, barcodetype, barcodehritype, align, barcodewidth, height);
+                if (feeds > 0) mPrinterDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
@@ -433,17 +440,17 @@ public class CustomPrinterInterface implements IThermalPrinter {
         synchronized (mLock) {
 
             try {
-                prnDevice.printBarcode2D(text, barcodetype, align, width);
-                if (feeds > 0) prnDevice.feed(feeds);
+                mPrinterDevice.printBarcode2D(text, barcodetype, align, width);
+                if (feeds > 0) mPrinterDevice.feed(feeds);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
@@ -457,17 +464,17 @@ public class CustomPrinterInterface implements IThermalPrinter {
         synchronized (mLock) {
 
             try {
-                if (feeds > 0) prnDevice.feed(feeds);
-                prnDevice.cut(cutMode);
+                if (feeds > 0) mPrinterDevice.feed(feeds);
+                mPrinterDevice.cut(cutMode);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
@@ -505,12 +512,12 @@ public class CustomPrinterInterface implements IThermalPrinter {
         } catch (CustomException e) {
             //Show Error
             String errorMessage = String.format("Printer Error: %s", e.getMessage());
-            Utils.showAlert((Activity) mContext, errorMessage);
+            //Utils.showAlert((Activity) mContext, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
         } catch (Exception e) {
             //Show Error
             String errorMessage = String.format("Printer Error: Set font properties error...");
-            Utils.showAlert((Activity) mContext, errorMessage);
+            //Utils.showAlert((Activity) mContext, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
         }
 
@@ -521,19 +528,19 @@ public class CustomPrinterInterface implements IThermalPrinter {
         synchronized (mLock) {
             try {
                 //Print Text (NORMAL)
-                prnDevice.printText(strTextToPrint, fntPrinterNormal);
-                prnDevice.printTextLF(strTextToPrint, fntPrinterNormal);
+                mPrinterDevice.printText(strTextToPrint, fntPrinterNormal);
+                mPrinterDevice.printTextLF(strTextToPrint, fntPrinterNormal);
                 //Print Text (BOLD size 2X)
-                prnDevice.printTextLF(strTextToPrint, fntPrinterBold2X);
+                mPrinterDevice.printTextLF(strTextToPrint, fntPrinterBold2X);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
@@ -556,16 +563,16 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
             try {
                 //Print (Left Align and Fit to printer width)
-                prnDevice.printImage(image, CustomPrinter.IMAGE_ALIGN_TO_LEFT, CustomPrinter.IMAGE_SCALE_TO_FIT, 0);
+                mPrinterDevice.printImage(image, CustomPrinter.IMAGE_ALIGN_TO_LEFT, CustomPrinter.IMAGE_SCALE_TO_FIT, 0);
             } catch (CustomException e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
 
@@ -575,21 +582,21 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
             try {
                 //Feeds (3)
-                prnDevice.feed(3);
+                mPrinterDevice.feed(3);
                 //Cut (Total)
-                prnDevice.cut(CustomPrinter.CUT_TOTAL);
+                mPrinterDevice.cut(CustomPrinter.CUT_TOTAL);
             } catch (CustomException e) {
                 //Only if isn't unsupported
                 if (e.GetErrorCode() != CustomException.ERR_UNSUPPORTEDFUNCTION) {
                     //Show Error
                     String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                    Utils.showAlert((Activity) mContext, errorMessage);
+                    //Utils.showAlert((Activity) mContext, errorMessage);
                     Log.e(MainActivity.TAG, errorMessage);
                 }
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
 
@@ -599,39 +606,40 @@ public class CustomPrinterInterface implements IThermalPrinter {
 
             try {
                 //Present (40mm)
-                prnDevice.present(40);
+                mPrinterDevice.present(40);
             } catch (CustomException e) {
                 //Only if isn't unsupported
                 if (e.GetErrorCode() != CustomException.ERR_UNSUPPORTEDFUNCTION) {
                     //Show Error
                     String errorMessage = String.format("Printer Error: %s", e.getMessage());
-                    Utils.showAlert((Activity) mContext, errorMessage);
+                    //Utils.showAlert((Activity) mContext, errorMessage);
                     Log.e(MainActivity.TAG, errorMessage);
                 }
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
-                Utils.showAlert((Activity) mContext, errorMessage);
+                //Utils.showAlert((Activity) mContext, errorMessage);
                 Log.e(MainActivity.TAG, errorMessage);
             }
         }
     }
 
-    public void destroy() throws Throwable {
+    public void close() throws Throwable {
         try {
-            if (prnDevice != null) {
+            if (mPrinterDevice != null) {
                 //Close device
-                prnDevice.close();
-            }
-            if (mRingtone.isPlaying()) {
-                Utils.alarmStopPlay(mRingtone);
+                mPrinterDevice.close();
             }
         } catch (CustomException e) {
             //Show Error
             String errorMessage = String.format("Printer Error: %s", e.getMessage());
-            Utils.showAlert((Activity) mContext, errorMessage);
+            //Utils.showAlert((Activity) mContext, errorMessage);
             Log.e(MainActivity.TAG, errorMessage);
         } catch (Exception e) {
+            //Show Error
+            String errorMessage = String.format("Printer Error: %s", e.getMessage());
+            //Utils.showAlert((Activity) mContext, errorMessage);
+            Log.e(MainActivity.TAG, errorMessage);
         }
 
         //Force Close Activity

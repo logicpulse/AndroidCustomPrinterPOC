@@ -13,7 +13,7 @@ import java.io.InputStream;
  */
 
 public interface IThermalPrinter {
-    void init(Context context, View view, UsbDevice usbDevice, Ringtone ringtone);
+    void init(Context context, UsbDevice usbDevice, View view, Ringtone ringtone);
     //boolean openDevice();
     void printText(String text, Object printerFont, Integer feeds);
     void printImage(Bitmap bitmap, Integer align, Integer scaletofit, Integer width, Integer feeds);
@@ -22,5 +22,5 @@ public interface IThermalPrinter {
     void cut(Integer cutMode, Integer feeds);
     void testPrintText(String text);
     void testPrintImage(InputStream inputStream);
-    void destroy() throws Throwable;
+    void close() throws Throwable;
 }
