@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Log;
 
+import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
 import com.logicpulse.logicpulsecustomprinter.MainActivity;
 import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
@@ -36,6 +37,8 @@ import it.custom.printer.api.android.PrinterFont;
 
 public class Ticket {
 
+    private static Singleton mApp = Singleton.getInstance();
+
     private Context mContext;
     private TicketTemplate mTicketTemplate = null;
     private IThermalPrinter mPrinter;
@@ -50,7 +53,7 @@ public class Ticket {
         String templateString = null;
 
         try {
-            templateString = getStringFromInputStream(inputStream, "UTF-8");
+            templateString = Utils.getStringFromInputStream(inputStream, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,14 +66,14 @@ public class Ticket {
                 //Show Error
                 String errorMessage = String.format("Error: Malformed JSON: %s\r\n\r\n%s", tx.getMessage(), templateString);
                 Utils.showAlert((Activity) context, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         } catch (Exception e) {
             //Show Error
             e.printStackTrace();
             String errorMessage = String.format("Error: Malformed JSON: %s", templateString);
             Utils.showAlert((Activity) context, errorMessage);
-            Log.e(MainActivity.TAG, errorMessage);
+            Log.e(mApp.getTAG(), errorMessage);
         }
     }
 
@@ -85,7 +88,7 @@ public class Ticket {
         if (mTicketTemplate != null) {
 
             for (int i = 0; i < copies; i++) {
-                Log.d(MainActivity.TAG, String.format("print copy: %d", i));
+                Log.d(mApp.getTAG(), String.format("print copy: %d", i));
 
                 for (Object property : mTicketTemplate.getProperties()) {
 
@@ -94,7 +97,7 @@ public class Ticket {
                     //Check Enabled State
                     if (node.getEnabled()) {
 
-                        Log.d(MainActivity.TAG, String.format("print: %s", node.getType()));
+                        Log.d(mApp.getTAG(), String.format("print: %s", node.getType()));
 
                         //Shared Value
                         String value = replaceTextTokens(node.getValue());
@@ -262,15 +265,6 @@ public class Ticket {
         return result;
     }
 
-    private String getStringFromInputStream(InputStream stream, String charsetName) throws IOException {
-        int n = 0;
-        char[] buffer = new char[1024 * 4];
-        InputStreamReader reader = new InputStreamReader(stream, charsetName);
-        StringWriter writer = new StringWriter();
-        while (-1 != (n = reader.read(buffer))) writer.write(buffer, 0, n);
-        return writer.toString();
-    }
-
     //Android - How to draw text on a bitmap
     //https://www.skoumal.net/en/android-how-draw-text-bitmap/
     //https://www.skoumal.net/en/android-drawing-multiline-text-on-bitmap/
@@ -369,7 +363,7 @@ public class Ticket {
             tokens.add("qrcode");
 
             for (String token : tokens) {
-                Log.d(MainActivity.TAG, token);
+                Log.d(mApp.getTAG(), token);
 
                 replaceToken = String.format("${%s}", token);
 

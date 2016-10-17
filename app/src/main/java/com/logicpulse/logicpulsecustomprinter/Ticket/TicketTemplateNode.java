@@ -29,10 +29,6 @@ public class TicketTemplateNode {
     private Boolean emphasized = false;
     private Boolean italic = false;
     private Boolean underline = false;
-//FONT_JUSTIFICATION_LEFT = 0;
-//FONT_JUSTIFICATION_CENTER = 1;
-//FONT_JUSTIFICATION_RIGHT = 2;
-//private Integer justification = 1;
     //FONT_CS_DEFAULT = 0;
     //FONT_CS_RUSSIAN = 1;
     //FONT_CS_TURKISH = 2;
@@ -89,9 +85,7 @@ public class TicketTemplateNode {
     private Boolean cut = false;
     private Integer cutmode = 0;
 
-    public String getKey() {
-        return key;
-    }
+    public String getKey() { return key; }
 
     public String getType() {
         return type;
@@ -132,10 +126,6 @@ public class TicketTemplateNode {
     public Boolean getUnderline() {
         return underline;
     }
-
-//public Integer getJustification() {
-//    return justification;
-//}
 
     public Integer getCharset() {
         return charset;

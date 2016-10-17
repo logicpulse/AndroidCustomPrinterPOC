@@ -33,13 +33,12 @@ import android.view.WindowManager;
 import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
 import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
+import com.logicpulse.logicpulsecustomprinter.Alarm.AlarmSchedule;
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static Singleton mApp = Singleton.getInstance();
 
-    public static final String TAG = "CustomPrinterPOC";
+    //public static final String TAG = "CustomPrinterPOC";
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
 
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
@@ -101,8 +100,9 @@ public class MainActivity extends AppCompatActivity {
 
         //Singleton
         mApp.setMainActivity(this);
-        mApp.setTAG(getResources().getString(R.string.app_name));
+        mApp.setTAG(getResources().getString(R.string.app_tag));
 
+        //Get View
         mViewActivityMain = findViewById(R.id.content_main);
 
         //Get Package Name
@@ -122,7 +122,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //KeepScreenOn WakeLock
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //Force Screen On
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Get System Services (USB)
@@ -130,13 +132,6 @@ public class MainActivity extends AppCompatActivity {
 
         //PowerManager (PowerManager)
         mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        //mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
-        //mWakeLock.acquire();
-        //mWakeLock.release();
-        //Log.v(TAG, "alarm: acquired wakelock");
-
-        //Force Screen On
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Alarm
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -157,22 +152,13 @@ public class MainActivity extends AppCompatActivity {
         //Register BroadcastReceivers()
         registerBroadcastReceivers();
 
-        ////init CustomPrinterDevice
-        //mCustomPrinterDevice = new CustomPrinterDevice(
-        //        //Fix for listViewDevices textColor
-        //        //never use getApplicationContext(). Just use your Activity as the Context
-        //        this /*this.getApplicationContext()*/,
-        //        viewActivityMain,
-        //        savedInstanceState
-        //);
-
         //init Ringtone
         Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         mRingtone = RingtoneManager.getRingtone(this, defaultUri);
 
         //If the Activity has not been created yet, it will be created and the intent arrive through the onCreate() method:
         if (ACTION_USB_ATTACHED.equalsIgnoreCase(getIntent().getAction())) {
-            Log.d(TAG, "ACTION_USB_ATTACHED");
+            Log.d(mApp.getTAG(), "ACTION_USB_ATTACHED");
             //init Usb Devices
             initUsbDevices();
         } else {
@@ -187,11 +173,11 @@ public class MainActivity extends AppCompatActivity {
 
         //If the activity has already been created/instantiated, the event will arrive through the 'onNewIntent()' method:
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-            Log.d(TAG, "ACTION_USB_ATTACHED");
+            Log.d(mApp.getTAG(), "ACTION_USB_ATTACHED");
             mUsbDevice = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             requestPermission(mUsbDevice);
         } else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-            Log.d(TAG, "ACTION_USB_DETACHED");
+            Log.d(mApp.getTAG(), "ACTION_USB_DETACHED");
         }
     }
     */
@@ -310,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
             //Register BroadcastReceiver
             registerReceiver(mPowerManagerReceiver, filter);
         } catch (Exception ex) {
-            Log.e(MainActivity.TAG, ex.getMessage(), ex);
+            Log.e(mApp.getTAG(), ex.getMessage(), ex);
         }
     }
 
@@ -327,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 synchronized (this) {
                     UsbAccessory accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
                     if (!intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                        Log.e(MainActivity.TAG, "permission denied for accessory " + accessory);
+                        Log.e(mApp.getTAG(), "permission denied for accessory " + accessory);
                     }
                 }
                 //} else if (mUsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
@@ -340,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                 //    }
             } else if (mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 synchronized (this) {
-                    Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_DETACHED");
+                    Log.e(mApp.getTAG(), "ACTION_USB_DEVICE_DETACHED");
                     runOnUiThread(new Runnable() {
                         public void run() {
                             try {
@@ -365,11 +351,11 @@ public class MainActivity extends AppCompatActivity {
 
             if (ACTION_SCREEN_ON.equals(action)) {
                 synchronized (this) {
-                    Log.e(MainActivity.TAG, "ACTION_SCREEN_ON");
+                    Log.e(mApp.getTAG(), "ACTION_SCREEN_ON");
                 }
             } else if (ACTION_SCREEN_OFF.equals(action)) {
                 synchronized (this) {
-                    Log.e(MainActivity.TAG, "ACTION_SCREEN_OFF");
+                    Log.e(mApp.getTAG(), "ACTION_SCREEN_OFF");
                 }
             }
         }
@@ -477,24 +463,27 @@ public class MainActivity extends AppCompatActivity {
         //Repeat alarm everyday accurately (Alarm manager)
         //http://stackoverflow.com/questions/28001154/repeat-alarm-everyday-accurately-alarm-manager
 
+        AlarmSchedule alarmSchedule = new AlarmSchedule(this);
+        alarmSchedule.setUpAlarms();
+
 
 //Calendar calendar = Calendar.getInstance();
-        Calendar calendarOff = new GregorianCalendar();
-        calendarOff.set(Calendar.HOUR_OF_DAY, 12);
-        calendarOff.set(Calendar.MINUTE, 44);
-        calendarOff.set(Calendar.SECOND, 00);
+        //Calendar calendarOff = new GregorianCalendar();
+        //calendarOff.set(Calendar.HOUR_OF_DAY, 12);
+        //calendarOff.set(Calendar.MINUTE, 44);
+        //calendarOff.set(Calendar.SECOND, 00);
 //calendarOff.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
 
 //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
 //mAlarmManager.setWindow(AlarmManager.RTC, calendarOff.getTimeInMillis(), 5000, mPendingIntentAlarmManagerOff);
-mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOff.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntentAlarmManagerOff);
+//mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOff.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntentAlarmManagerOff);
 
-        Calendar calendarOn = new GregorianCalendar();
-        calendarOn.set(Calendar.HOUR_OF_DAY, 12);
-        calendarOn.set(Calendar.MINUTE, 43);
-        calendarOn.set(Calendar.SECOND, 00);
+        //Calendar calendarOn = new GregorianCalendar();
+        //calendarOn.set(Calendar.HOUR_OF_DAY, 12);
+        //calendarOn.set(Calendar.MINUTE, 43);
+        //calendarOn.set(Calendar.SECOND, 00);
 //mAlarmManager.setWindow(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis(), 5000, mPendingIntentAlarmManagerOn);
-mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntentAlarmManagerOn);
+//mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntentAlarmManagerOn);
 
         //Ends App
         //finish();
@@ -565,13 +554,13 @@ mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis()
                     mUsbDevice.getProductId(),
                     mUsbDevice.getVendorId()
             );
-            Log.d(TAG, deviceMessage);
+            Log.d(mApp.getTAG(), deviceMessage);
 
             //Show Interfaces
             for (int i = 0; i < mUsbDevice.getInterfaceCount(); i++) {
 
                 mUsbInterface = mUsbDevice.getInterface(i);
-                Log.d(TAG, String.format("Interface DescribeContents: %d", mUsbInterface.describeContents()));
+                Log.d(mApp.getTAG(), String.format("Interface DescribeContents: %d", mUsbInterface.describeContents()));
 
                 //Request Permission: Show the Request Permission USB Dialog :)
                 requestPermission(mUsbDevice);
@@ -579,13 +568,13 @@ mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis()
                 //Show Endpoints
                 for (int j = 0; j < mUsbInterface.getEndpointCount(); j++) {
                     mUsbEndpoint = mUsbInterface.getEndpoint(j);
-                    Log.d(TAG, String.format("EndPoint DescribeContents: %d", mUsbEndpoint.describeContents()));
+                    Log.d(mApp.getTAG(), String.format("EndPoint DescribeContents: %d", mUsbEndpoint.describeContents()));
 
                     //Test EndPoint : DETECTED Custom TG2460H
                     if (mUsbDevice.getVendorId() == 3540 /*&& mUsbDevice.getProductId() == 423*/) {
 
                         //testEndPoint(mUsbDevice, mUsbInterface, mUsbEndpoint);
-                        Log.d(TAG, String.format("ProductId: %d / VendorId: %d", mUsbDevice.getProductId(), mUsbDevice.getVendorId()));
+                        Log.d(mApp.getTAG(), String.format("ProductId: %d / VendorId: %d", mUsbDevice.getProductId(), mUsbDevice.getVendorId()));
 
                         //init CustomPrinterDevice
                         mCustomPrinterDevice = new CustomPrinterDevice();
@@ -598,7 +587,7 @@ mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis()
             }
         }
         if (mDeviceList.size() <= 0) {
-            Log.d(TAG, "No Devices Found");
+            Log.d(mApp.getTAG(), "No Devices Found");
         }
     }
 

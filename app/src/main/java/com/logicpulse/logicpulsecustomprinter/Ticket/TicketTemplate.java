@@ -17,5 +17,4 @@ class TicketTemplate {
     public ArrayList<TicketTemplateNode> getProperties() {
         return properties;
     }
-
 }

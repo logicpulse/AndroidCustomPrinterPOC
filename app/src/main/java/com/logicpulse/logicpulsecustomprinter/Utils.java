@@ -21,12 +21,16 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import com.logicpulse.logicpulsecustomprinter.App.Singleton;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,6 +42,8 @@ import static android.content.ContentValues.TAG;
  */
 
 public class Utils {
+
+    private static Singleton mApp = Singleton.getInstance();
 
     //Used in CustomPrinterDevice
     public static String intToHexString(int iValue, int num0chars) {
@@ -69,13 +75,22 @@ public class Utils {
         return result;
     }
 
+    public static String getStringFromInputStream(InputStream stream, String charsetName) throws IOException {
+        int n = 0;
+        char[] buffer = new char[1024 * 4];
+        InputStreamReader reader = new InputStreamReader(stream, charsetName);
+        StringWriter writer = new StringWriter();
+        while (-1 != (n = reader.read(buffer))) writer.write(buffer, 0, n);
+        return writer.toString();
+    }
+
     public static InputStream getInputStreamFromRawResource(Context context, int resourceId) {
         try {
             Resources res = context.getResources();
             InputStream inputStream = res.openRawResource(resourceId);
             return inputStream;
         } catch (Exception e) {
-            Log.e(MainActivity.TAG, "File Reading Error", e);
+            Log.e(mApp.getTAG(), "File Reading Error", e);
         }
         return null;
     }
@@ -88,21 +103,21 @@ public class Utils {
             );
             return drawable;
         } catch (Exception e) {
-            Log.e(MainActivity.TAG, "File Reading Error", e);
+            Log.e(mApp.getTAG(), "File Reading Error", e);
         }
         return null;
     }
 
     public static void alarmStartPlay(Context context, Ringtone ringtone) {
         if (ringtone != null && !ringtone.isPlaying()) {
-            Log.d(MainActivity.TAG, "Alarm Started");
+            Log.d(mApp.getTAG(), "Alarm Started");
             ringtone.play();
         }
     }
 
     public static void alarmStopPlay(Ringtone ringtone) {
         if (ringtone != null && ringtone.isPlaying()) {
-            Log.d(MainActivity.TAG, "Alarm Stopped");
+            //Log.d(mApp.getTAG(), "Alarm Stopped");
             ringtone.stop();
         }
     }
@@ -194,13 +209,13 @@ public class Utils {
                     fileAppDataPermission.delete();
                     //Show Message
                     String errorMessage = String.format("Successfully Copied USB Permission File to:\r\n%s\r\n\r\nWarning: Do you want reboot device to apply permissions?", fileRootFileSystemPermission);
-                    Log.d(MainActivity.TAG, errorMessage);
+                    Log.d(mApp.getTAG(), errorMessage);
                     showConfirmReboot(context, errorMessage);
                 } else {
                     //Show Error
                     String errorMessage = String.format("Error copy USB Permission File to: %s", fileRootFileSystemPermission);
                     Utils.showAlert((Activity) context, errorMessage);
-                    Log.e(MainActivity.TAG, errorMessage);
+                    Log.e(mApp.getTAG(), errorMessage);
                 }
             }
         } catch (Exception e) {
@@ -305,7 +320,7 @@ public class Utils {
         //content.startActivity(intent);
 
         PowerManager pm = (PowerManager) content.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, mApp.getTAG());
         wl.acquire();
         //..screen will stay on during this section..
         wl.release();
@@ -333,11 +348,11 @@ public class Utils {
         //content.startActivity(intent);
 
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, MainActivity.TAG);
+        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, mApp.getTAG());
         //wl.acquire();
         //..screen will stay on during this section..
         //wl.release();
-        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
+        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, mApp.getTAG());
 
 //        final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
 //                |PowerManager.ACQUIRE_CAUSES_WAKEUP

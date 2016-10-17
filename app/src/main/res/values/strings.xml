@@ -1,7 +1,8 @@
 <resources>
 
     <string name="app_company">LogicPulse</string>
-    <string name="app_name">CustomPrinter</string>
+    <string name="app_name">Logicpulse CustomPrinter POC</string>
+    <string name="app_tag">CustomPrinterPoc</string>
 
     <string name="app_version">1.0</string>
     <string name="app_device_admin_description">Device admin description...</string>

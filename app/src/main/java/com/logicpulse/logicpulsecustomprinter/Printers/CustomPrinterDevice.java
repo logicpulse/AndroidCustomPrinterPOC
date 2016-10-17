@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
-import com.logicpulse.logicpulsecustomprinter.MainActivity;
+import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 import com.logicpulse.logicpulsecustomprinter.R;
 import com.logicpulse.logicpulsecustomprinter.Utils;
 
@@ -28,6 +28,8 @@ import it.custom.printer.api.android.PrinterStatus;
  */
 
 public class CustomPrinterDevice implements IThermalPrinter {
+
+    private static Singleton mApp = Singleton.getInstance();
 
     private int GETSTATUS_TIME = 1000;
     private Context mContext;
@@ -99,7 +101,7 @@ public class CustomPrinterDevice implements IThermalPrinter {
             e.printStackTrace();
             String errorMessage = String.format("Error init Printer: init");
             //Utils.showAlert((Activity) mContext, errorMessage);
-            Log.e(MainActivity.TAG, errorMessage);
+            Log.e(mApp.getTAG(), errorMessage);
         }
     }
 
@@ -234,7 +236,7 @@ public class CustomPrinterDevice implements IThermalPrinter {
                         //Show Error
                         String errorMessage = String.format("Printer Error: %s", e.getMessage());
                         //Utils.showAlert((Activity) mContext, errorMessage);
-                        Log.e(MainActivity.TAG, errorMessage);
+                        Log.e(mApp.getTAG(), errorMessage);
                         //Alarm Work
                         Utils.alarmStartPlay(mContext, mRingtone);
                     } catch (Exception e) {
@@ -243,7 +245,7 @@ public class CustomPrinterDevice implements IThermalPrinter {
                         //Show Error
                         String errorMessage = String.format("Printer Error: %s", e.getMessage());
                         //Utils.showAlert((Activity) mContext, errorMessage);
-                        Log.e(MainActivity.TAG, errorMessage);
+                        Log.e(mApp.getTAG(), errorMessage);
                         //Alarm Work
                         Utils.alarmStartPlay(mContext, mRingtone);
                     }
@@ -372,12 +374,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
     }
@@ -400,12 +402,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
 
@@ -423,12 +425,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
     }
@@ -446,12 +448,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
     }
@@ -470,12 +472,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
     }
@@ -513,12 +515,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
             //Show Error
             String errorMessage = String.format("Printer Error: %s", e.getMessage());
             //Utils.showAlert((Activity) mContext, errorMessage);
-            Log.e(MainActivity.TAG, errorMessage);
+            Log.e(mApp.getTAG(), errorMessage);
         } catch (Exception e) {
             //Show Error
             String errorMessage = String.format("Printer Error: Set font properties error...");
             //Utils.showAlert((Activity) mContext, errorMessage);
-            Log.e(MainActivity.TAG, errorMessage);
+            Log.e(mApp.getTAG(), errorMessage);
         }
 
         //***************************************************************************
@@ -536,12 +538,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
     }
@@ -568,12 +570,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
                 //Show Error
                 String errorMessage = String.format("Printer Error: %s", e.getMessage());
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
 
             //***************************************************************************
@@ -591,13 +593,13 @@ public class CustomPrinterDevice implements IThermalPrinter {
                     //Show Error
                     String errorMessage = String.format("Printer Error: %s", e.getMessage());
                     //Utils.showAlert((Activity) mContext, errorMessage);
-                    Log.e(MainActivity.TAG, errorMessage);
+                    Log.e(mApp.getTAG(), errorMessage);
                 }
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
 
             //***************************************************************************
@@ -613,13 +615,13 @@ public class CustomPrinterDevice implements IThermalPrinter {
                     //Show Error
                     String errorMessage = String.format("Printer Error: %s", e.getMessage());
                     //Utils.showAlert((Activity) mContext, errorMessage);
-                    Log.e(MainActivity.TAG, errorMessage);
+                    Log.e(mApp.getTAG(), errorMessage);
                 }
             } catch (Exception e) {
                 //Show Error
                 String errorMessage = "Printer Error: Print Picture Error...";
                 //Utils.showAlert((Activity) mContext, errorMessage);
-                Log.e(MainActivity.TAG, errorMessage);
+                Log.e(mApp.getTAG(), errorMessage);
             }
         }
     }
@@ -634,12 +636,12 @@ public class CustomPrinterDevice implements IThermalPrinter {
             //Show Error
             String errorMessage = String.format("Printer Error: %s", e.getMessage());
             //Utils.showAlert((Activity) mContext, errorMessage);
-            Log.e(MainActivity.TAG, errorMessage);
+            Log.e(mApp.getTAG(), errorMessage);
         } catch (Exception e) {
             //Show Error
             String errorMessage = String.format("Printer Error: %s", e.getMessage());
             //Utils.showAlert((Activity) mContext, errorMessage);
-            Log.e(MainActivity.TAG, errorMessage);
+            Log.e(mApp.getTAG(), errorMessage);
         }
 
         //Force Close Activity
