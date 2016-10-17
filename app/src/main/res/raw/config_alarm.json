@@ -1,0 +1,11 @@
+{
+  "calendar": [
+    {
+      "action": "screen_on"
+    },
+    {
+      "action": "screen_off"
+    }
+  ]
+}
+

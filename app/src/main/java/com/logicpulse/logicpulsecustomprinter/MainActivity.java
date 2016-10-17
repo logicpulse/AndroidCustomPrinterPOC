@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -67,11 +68,6 @@ public class MainActivity extends AppCompatActivity {
     private Ringtone mRingtone;
     private Ticket mTicket;
     private View mViewActivityMain;
-    //DeviceAdmin
-    private Boolean mAdminActive;
-    // Interaction with the DevicePolicyManager
-    private ComponentName mDeviceAdmin;
-    private DevicePolicyManager mDevicePolicyManager;
     //PowerManager
     private PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
@@ -105,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Singleton
         mApp.setMainActivity(this);
+        mApp.setTAG(getResources().getString(R.string.app_name));
 
         mViewActivityMain = findViewById(R.id.content_main);
 
@@ -153,12 +150,12 @@ public class MainActivity extends AppCompatActivity {
         mPendingIntentAlarmManagerOff = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
 
         //Admin Mode
-        mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-        mDeviceAdmin = new ComponentName(this, DeviceAdmin.class);
-        mAdminActive = isActiveAdmin();
+        mApp.setDevicePolicyManager((DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE));
+        mApp.setDeviceAdmin(new ComponentName(this, DeviceAdmin.class));
+        mApp.setDeviceAdminActive(isActiveAdmin());
 
-        //Register BroadcastReceiver()
-        registerBroadcastReceiver();
+        //Register BroadcastReceivers()
+        registerBroadcastReceivers();
 
         ////init CustomPrinterDevice
         //mCustomPrinterDevice = new CustomPrinterDevice(
@@ -203,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        enableDeviceCapabilitiesArea(mAdminActive);
+        enableDeviceCapabilitiesArea(mApp.getDeviceAdminActive());
     }
 
     @Override
@@ -296,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
     //--------------------------------------------------------------------------------------------------------------
     // BroadcastReceiver
 
-    private void registerBroadcastReceiver() {
+    private void registerBroadcastReceivers() {
         try {
 
             //Setup PendingIntent
@@ -434,19 +431,19 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean actionToggleAdmin() {
 
-        if (!mAdminActive) {
+        if (!mApp.getDeviceAdminActive()) {
             // Launch the activity to have the user enable our admin.
             Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mDeviceAdmin);
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mApp.getDeviceAdminActive());
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, this.getString(R.string.add_admin_extra_app_text));
             startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
             // return false - don't update checkbox until we're really active
             return false;
 
         } else {
-            mDevicePolicyManager.removeActiveAdmin(mDeviceAdmin);
+            mApp.getDevicePolicyManager().removeActiveAdmin(mApp.getDeviceAdmin());
             enableDeviceCapabilitiesArea(false);
-            mAdminActive = false;
+            mApp.setDeviceAdminActive(false);
         }
 
         return false;
@@ -469,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
         //devAdminReceiver = new ComponentName(context, deviceAdminReceiver.class);
         //then in your onResume
 
-        mDevicePolicyManager.lockNow();
+        //mApp.getDevicePolicyManager().lockNow();
 
         //mAlarmManager.setInexactRepeating(
         //        AlarmManager.RTC_WAKEUP,
@@ -477,11 +474,27 @@ public class MainActivity extends AppCompatActivity {
         //        10 * 1000,
         //        mPendingIntentAlarmManagerOn);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 11);
-        calendar.set(Calendar.MINUTE, 01);
-        calendar.set(Calendar.SECOND, 00);
-        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
+        //Repeat alarm everyday accurately (Alarm manager)
+        //http://stackoverflow.com/questions/28001154/repeat-alarm-everyday-accurately-alarm-manager
+
+
+//Calendar calendar = Calendar.getInstance();
+        Calendar calendarOff = new GregorianCalendar();
+        calendarOff.set(Calendar.HOUR_OF_DAY, 12);
+        calendarOff.set(Calendar.MINUTE, 44);
+        calendarOff.set(Calendar.SECOND, 00);
+//calendarOff.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+
+//mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
+//mAlarmManager.setWindow(AlarmManager.RTC, calendarOff.getTimeInMillis(), 5000, mPendingIntentAlarmManagerOff);
+mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOff.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntentAlarmManagerOff);
+
+        Calendar calendarOn = new GregorianCalendar();
+        calendarOn.set(Calendar.HOUR_OF_DAY, 12);
+        calendarOn.set(Calendar.MINUTE, 43);
+        calendarOn.set(Calendar.SECOND, 00);
+//mAlarmManager.setWindow(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis(), 5000, mPendingIntentAlarmManagerOn);
+mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendarOn.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntentAlarmManagerOn);
 
         //Ends App
         //finish();
@@ -502,7 +515,6 @@ public class MainActivity extends AppCompatActivity {
         //        }, 1000);
         //    }
         //});
-
 
         //http://www.concretepage.com/android/android-alarm-clock-tutorial-to-schedule-and-cancel-alarmmanager-pendingintent-and-wakefulbroadcastreceiver-example
         //http://www.concretepage.com/android/download/android-alarm-clock-tutorial-to-schedule-and-cancel-alarmmanager-pendingintent-and-wakefulbroadcastreceiver-example.zip
@@ -681,11 +693,11 @@ public class MainActivity extends AppCompatActivity {
      * Helper to determine if we are an active admin
      */
     private boolean isActiveAdmin() {
-        return mDevicePolicyManager.isAdminActive(mDeviceAdmin);
+        return mApp.getDevicePolicyManager().isAdminActive(mApp.getDeviceAdmin());
     }
 
     public void setAdminActive(Boolean value) {
-        mAdminActive = value;
+        mApp.setDeviceAdminActive(value);
     }
 
     /**

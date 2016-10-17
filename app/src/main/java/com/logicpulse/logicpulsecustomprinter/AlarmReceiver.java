@@ -6,12 +6,10 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
-import android.view.WindowManager;
 
-import static android.R.attr.value;
+import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 
 /**
  * Created by mario.monteiro on 13/10/2016.
@@ -25,6 +23,9 @@ import static android.R.attr.value;
 // WakefulBroadcastReceiver is implemented as
 
 public class AlarmReceiver extends WakefulBroadcastReceiver {
+
+    private static Singleton mApp = Singleton.getInstance();
+
     @Override
     public void onReceive(final Context context, Intent intent) {
 
@@ -32,26 +33,25 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         if (mode.toUpperCase().equals("screenOn".toUpperCase())) {
             Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: screenOn");
+
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, "wake");
+            wakeLock .acquire();
         }
-        else {
+        else if (mode.toUpperCase().equals("screenOff".toUpperCase())) {
             Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: screenOff");
+
+            mApp.getDevicePolicyManager().lockNow();
         }
 
-        Log.d(MainActivity.TAG, "AlarmReceiver.onReceive");
-
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, "wake");
-        wakeLock .acquire();
-
-        Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: Start Activity");
-
-        Intent myIntent = new Intent(context, MainActivity.class);
-        context.startActivity(myIntent);
+        //Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: Start Activity");
+        //Intent myIntent = new Intent(context, MainActivity.class);
+        //context.startActivity(myIntent);
 
         //init Ringtone
-        //Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        //Ringtone ringtone = RingtoneManager.getRingtone(context, defaultUri);
-        //Utils.alarmStartPlay(context, ringtone);
+        Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        Ringtone ringtone = RingtoneManager.getRingtone(context, defaultUri);
+        Utils.alarmStartPlay(context, ringtone);
 
         //PowerManager.WakeLock screenOn = ((PowerManager)context
         //        .getSystemService(context.POWER_SERVICE))
