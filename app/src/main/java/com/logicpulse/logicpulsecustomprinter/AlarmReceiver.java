@@ -11,6 +11,8 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.view.WindowManager;
 
+import static android.R.attr.value;
+
 /**
  * Created by mario.monteiro on 13/10/2016.
  */
@@ -25,16 +27,31 @@ import android.view.WindowManager;
 public class AlarmReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
+
+        String mode = intent.getStringExtra("mode"); //if it's a string you stored.
+
+        if (mode.toUpperCase().equals("screenOn".toUpperCase())) {
+            Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: screenOn");
+        }
+        else {
+            Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: screenOff");
+        }
+
         Log.d(MainActivity.TAG, "AlarmReceiver.onReceive");
 
         PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, "wake");
         wakeLock .acquire();
 
+        Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: Start Activity");
+
+        Intent myIntent = new Intent(context, MainActivity.class);
+        context.startActivity(myIntent);
+
         //init Ringtone
-        Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        Ringtone ringtone = RingtoneManager.getRingtone(context, defaultUri);
-        Utils.alarmStartPlay(context, ringtone);
+        //Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        //Ringtone ringtone = RingtoneManager.getRingtone(context, defaultUri);
+        //Utils.alarmStartPlay(context, ringtone);
 
         //PowerManager.WakeLock screenOn = ((PowerManager)context
         //        .getSystemService(context.POWER_SERVICE))

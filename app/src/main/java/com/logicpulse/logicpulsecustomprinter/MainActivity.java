@@ -1,6 +1,5 @@
 package com.logicpulse.logicpulsecustomprinter;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
@@ -21,9 +20,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -51,9 +47,6 @@ import it.custom.printer.api.android.CustomException;
 import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.os.Debug.isDebuggerConnected;
-import static android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP;
-import static android.os.PowerManager.FULL_WAKE_LOCK;
-import static android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,7 +77,8 @@ public class MainActivity extends AppCompatActivity {
     private PowerManager.WakeLock mWakeLock;
     //Alarm
     private AlarmManager mAlarmManager;
-    private PendingIntent mPendingIntentAlarmManager;
+    private PendingIntent mPendingIntentAlarmManagerOn;
+    private PendingIntent mPendingIntentAlarmManagerOff;
     //Usb
     private PendingIntent mPendingIntentUsbPermission;
     private UsbManager mUsbManager;
@@ -149,8 +143,14 @@ public class MainActivity extends AppCompatActivity {
 
         //Alarm
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intentAlarmManager = new Intent(MainActivity.this, AlarmReceiver.class);
-        mPendingIntentAlarmManager = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManager, 0);
+        //Pending Intents On
+        Intent intentAlarmManagerOn = new Intent(MainActivity.this, AlarmReceiver.class);
+        intentAlarmManagerOn.putExtra("mode", "screenOn");
+        mPendingIntentAlarmManagerOn = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
+        //Pending Intents Off
+        Intent intentAlarmManagerOff = new Intent(MainActivity.this, AlarmReceiver.class);
+        intentAlarmManagerOff.putExtra("mode", "screenOff");
+        mPendingIntentAlarmManagerOff = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
 
         //Admin Mode
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -475,12 +475,13 @@ public class MainActivity extends AppCompatActivity {
         //        AlarmManager.RTC_WAKEUP,
         //        10 * 1000,
         //        10 * 1000,
-        //        mPendingIntentAlarmManager);
+        //        mPendingIntentAlarmManagerOn);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 10);
-        calendar.set(Calendar.MINUTE, 28);
-        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManager);
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 01);
+        calendar.set(Calendar.SECOND, 00);
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
 
         //Ends App
         //finish();
@@ -711,18 +712,18 @@ public class MainActivity extends AppCompatActivity {
         //Calendar calendar = Calendar.getInstance();
         //calendar.set(Calendar.HOUR_OF_DAY, timeHour);
         //calendar.set(Calendar.MINUTE, timeMinute);
-        //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManager);
-        //mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5 * 1000, mPendingIntentAlarmManager);
+        //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
+        //mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5 * 1000, mPendingIntentAlarmManagerOn);
 
         mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 5 * 1000,
                 5 * 1000,
-                mPendingIntentAlarmManager);
+                mPendingIntentAlarmManagerOn);
     }
 
     private void cancelAlarm() {
         if (mAlarmManager != null) {
-            mAlarmManager.cancel(mPendingIntentAlarmManager);
+            mAlarmManager.cancel(mPendingIntentAlarmManagerOn);
         }
     }
 }
