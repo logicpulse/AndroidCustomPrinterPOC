@@ -2,6 +2,7 @@ package com.logicpulse.logicpulsecustomprinter;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
@@ -297,19 +298,19 @@ public class Utils {
 
     //Turning screen on and off programmatically not working on some devices
     //http://stackoverflow.com/questions/13416563/turning-screen-on-and-off-programmatically-not-working-on-some-devices
-    public static void powerManagerScreenOff(Context context, String packageName) {
+    public static void powerManagerScreenOff(Context content, String packageName) {
         //PowerManager pm = (PowerManager)content.getSystemService(Service.POWER_SERVICE);
         //Intent intent = new Intent(mPackageName);
         //intent.setAction(Intent.ACTION_SCREEN_OFF);
         //content.startActivity(intent);
 
-        //PowerManager pm = (PowerManager) content.getSystemService(Context.POWER_SERVICE);
-        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
-        //wl.acquire();
+        PowerManager pm = (PowerManager) content.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
+        wl.acquire();
         //..screen will stay on during this section..
-        //wl.release();
+        wl.release();
 
-        Utils.executeHasSu("reboot");
+        //Utils.executeHasSu("reboot");
 
         //Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, 1000);
 
@@ -319,6 +320,9 @@ public class Utils {
         //devicePolicyManager.lockNow();
     }
 
+    //Wakelock in Android with example
+    //http://www.compiletimeerror.com/2014/01/using-wake-locks-in-android-with-example.html#.V_-PvugrJpg
+    //
     //http://stackoverflow.com/questions/6756768/turn-off-screen-on-android
     //Needed permission:
     //<uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -333,8 +337,15 @@ public class Utils {
         //wl.acquire();
         //..screen will stay on during this section..
         //wl.release();
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
-        wl.acquire();
-        wl.release();
+        //PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, MainActivity.TAG);
+
+//        final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+//                |PowerManager.ACQUIRE_CAUSES_WAKEUP
+//                |PowerManager.ON_AFTER_RELEASE, "");
+
+        //wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP, "My Tag");
+
+        //wl.acquire();
+        //wl.release();
     }
 }

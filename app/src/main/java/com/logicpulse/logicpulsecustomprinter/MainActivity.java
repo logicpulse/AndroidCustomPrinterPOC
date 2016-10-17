@@ -1,6 +1,7 @@
 package com.logicpulse.logicpulsecustomprinter;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
@@ -19,6 +20,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.SystemClock;
+import android.provider.Settings;
+import android.support.annotation.LayoutRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 
+import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 import com.logicpulse.logicpulsecustomprinter.Printers.CustomPrinterDevice;
 import com.logicpulse.logicpulsecustomprinter.Printers.IThermalPrinter;
 import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
@@ -36,6 +42,7 @@ import com.logicpulse.logicpulsecustomprinter.Ticket.Ticket;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -44,8 +51,13 @@ import it.custom.printer.api.android.CustomException;
 import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.os.Debug.isDebuggerConnected;
+import static android.os.PowerManager.ACQUIRE_CAUSES_WAKEUP;
+import static android.os.PowerManager.FULL_WAKE_LOCK;
+import static android.os.PowerManager.SCREEN_BRIGHT_WAKE_LOCK;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static Singleton mApp = Singleton.getInstance();
 
     public static final String TAG = "CustomPrinterPOC";
     public static final String PRINT_TEXT = "Texting CustomPrinterPOC...";
@@ -67,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
     // Interaction with the DevicePolicyManager
     private ComponentName mDeviceAdmin;
     private DevicePolicyManager mDevicePolicyManager;
+    //PowerManager
+    private PowerManager mPowerManager;
+    private PowerManager.WakeLock mWakeLock;
+    //Alarm
+    private AlarmManager mAlarmManager;
+    private PendingIntent mPendingIntentAlarmManager;
     //Usb
     private PendingIntent mPendingIntentUsbPermission;
     private UsbManager mUsbManager;
@@ -91,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Singleton
+        mApp.setMainActivity(this);
+
         mViewActivityMain = findViewById(R.id.content_main);
 
         //Get Package Name
@@ -110,10 +131,26 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //KeepScreenOn WakeLock
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        //Get System Services
-        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        //Get System Services (USB)
+        mUsbManager = (UsbManager) getSystemService(USB_SERVICE);
+
+        //PowerManager (PowerManager)
+        mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        //mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
+        //mWakeLock.acquire();
+        //mWakeLock.release();
+        //Log.v(TAG, "alarm: acquired wakelock");
+
+        //Force Screen On
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //Alarm
+        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intentAlarmManager = new Intent(MainActivity.this, AlarmReceiver.class);
+        mPendingIntentAlarmManager = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManager, 0);
 
         //Admin Mode
         mDevicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -418,8 +455,12 @@ public class MainActivity extends AppCompatActivity {
     private void actionTestScreenOff() {
 
         //Screen Off
-        final Activity finalContext = (Activity) this;
-        Utils.powerManagerScreenOff(this, mPackageName);
+        //final Activity finalContext = (Activity) this;
+
+        //Utils.powerManagerScreenOff(this, mPackageName);
+
+        //Turning screen on and off programmatically not working on some devices
+        //http://stackoverflow.com/questions/13416563/turning-screen-on-and-off-programmatically-not-working-on-some-devices
 
         //http://stackoverflow.com/questions/6560426/android-devicepolicymanager-locknow
         //ComponentName devAdminReceiver; // this would have been declared in your class body
@@ -428,21 +469,60 @@ public class MainActivity extends AppCompatActivity {
         //devAdminReceiver = new ComponentName(context, deviceAdminReceiver.class);
         //then in your onResume
 
-        //mDevicePolicyManager.lockNow();
+        mDevicePolicyManager.lockNow();
+
+        //mAlarmManager.setInexactRepeating(
+        //        AlarmManager.RTC_WAKEUP,
+        //        10 * 1000,
+        //        10 * 1000,
+        //        mPendingIntentAlarmManager);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 10);
+        calendar.set(Calendar.MINUTE, 28);
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManager);
+
+        //Ends App
         //finish();
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Utils.powerManagerScreenOn(finalContext, mPackageName);
-                    }
-                }, 60000);
-            }
-        });
+        //runOnUiThread(new Runnable() {
+        //    @Override
+        //    public void run() {
+        //        final Handler handler = new Handler();
+        //        handler.postDelayed(new Runnable() {
+        //            @Override
+        //            public void run() {
+        //                //Utils.powerManagerScreenOn(finalContext, mPackageName);
+        //                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //                getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        //                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        //
+        //            }
+        //        }, 1000);
+        //    }
+        //});
+
+
+        //http://www.concretepage.com/android/android-alarm-clock-tutorial-to-schedule-and-cancel-alarmmanager-pendingintent-and-wakefulbroadcastreceiver-example
+        //http://www.concretepage.com/android/download/android-alarm-clock-tutorial-to-schedule-and-cancel-alarmmanager-pendingintent-and-wakefulbroadcastreceiver-example.zip
+
+        // Set the alarm to start at approximately 2:00 p.m.
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(System.currentTimeMillis());
+//        calendar.set(Calendar.HOUR_OF_DAY, 14);
+
+        //Intent intent = new Intent(this, AlarmReceiver.class);
+        //PendingIntent  pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+        //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
+        // With setInexactRepeating(), you have to use one of the AlarmManager interval
+        // constants--in this case, AlarmManager.INTERVAL_DAY.
+        //mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+
+
+        //mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10 * 1000, pendingIntent);
+
+        //setAlarm();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -594,13 +674,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    // Actions
+    // DeviceAdmin
 
     /**
      * Helper to determine if we are an active admin
      */
     private boolean isActiveAdmin() {
         return mDevicePolicyManager.isAdminActive(mDeviceAdmin);
+    }
+
+    public void setAdminActive(Boolean value) {
+        mAdminActive = value;
     }
 
     /**
@@ -615,5 +699,30 @@ public class MainActivity extends AppCompatActivity {
         //mDisableKeyguardTrustAgentCheckbox.setEnabled(enabled);
         //mTrustAgentComponent.setEnabled(enabled);
         //mTrustAgentFeatures.setEnabled(enabled);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+    // Alarm
+
+    //Wake Android Device up
+    //GOOD POST: http://stackoverflow.com/questions/3621599/wake-android-device-up
+
+    private void setAlarm() {
+        //Calendar calendar = Calendar.getInstance();
+        //calendar.set(Calendar.HOUR_OF_DAY, timeHour);
+        //calendar.set(Calendar.MINUTE, timeMinute);
+        //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManager);
+        //mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5 * 1000, mPendingIntentAlarmManager);
+
+        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                5 * 1000,
+                5 * 1000,
+                mPendingIntentAlarmManager);
+    }
+
+    private void cancelAlarm() {
+        if (mAlarmManager != null) {
+            mAlarmManager.cancel(mPendingIntentAlarmManager);
+        }
     }
 }

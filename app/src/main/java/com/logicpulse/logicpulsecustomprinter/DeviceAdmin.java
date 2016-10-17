@@ -5,11 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.logicpulse.logicpulsecustomprinter.App.Singleton;
+
 /**
  * Created by mario.monteiro on 07/10/2016.
  */
 
 public class DeviceAdmin extends DeviceAdminReceiver {
+
+    private static Singleton mApp = Singleton.getInstance();
 
     void showToast(Context context, String msg) {
         String status = String.format("%s %s", context.getString(R.string.admin_receiver_status), msg);
@@ -19,6 +23,7 @@ public class DeviceAdmin extends DeviceAdminReceiver {
     @Override
     public void onEnabled(Context context, Intent intent) {
         showToast(context, context.getString(R.string.admin_receiver_status_enabled));
+        mApp.getMainActivity().setAdminActive(true);
     }
 
     @Override
@@ -29,6 +34,7 @@ public class DeviceAdmin extends DeviceAdminReceiver {
     @Override
     public void onDisabled(Context context, Intent intent) {
         showToast(context, context.getString(R.string.admin_receiver_status_disabled));
+        mApp.getMainActivity().setAdminActive(false);
     }
 
     @Override
