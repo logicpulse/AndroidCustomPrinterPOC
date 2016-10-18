@@ -2,6 +2,7 @@ package com.logicpulse.logicpulsecustomprinter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -49,9 +50,13 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         //context.startActivity(myIntent);
 
         //init Ringtone
-        Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-        Ringtone ringtone = RingtoneManager.getRingtone(context, defaultUri);
-        Utils.alarmStartPlay(context, ringtone);
+        //Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        //Ringtone ringtone = RingtoneManager.getRingtone(context, defaultUri);
+        //Utils.alarmStartPlay(context, ringtone);
+
+        //Play Sound
+        MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.notification);
+        mediaPlayer.start();
 
         //PowerManager.WakeLock screenOn = ((PowerManager)context
         //        .getSystemService(context.POWER_SERVICE))

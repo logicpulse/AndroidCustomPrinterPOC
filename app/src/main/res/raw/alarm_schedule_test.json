@@ -2,17 +2,6 @@
   "properties": [
     {
       "day" : "tuesday",
-      "hour" : "10:25",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "10:30",
-      "action": "screen_on"
-    },
-
-    {
-      "day" : "tuesday",
       "hour" : "10:35",
       "action": "screen_off"
     },
@@ -41,6 +30,73 @@
     {
       "day" : "tuesday",
       "hour" : "11:00",
+      "action": "screen_on"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "11:05",
+      "action": "screen_off"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "11:10",
+      "action": "screen_on"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "11:15",
+      "action": "screen_off"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "11:20",
+      "action": "screen_on"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "11:25",
+      "action": "screen_off"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "11:30",
+      "action": "screen_on"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "11:35",
+      "action": "screen_off"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "11:40",
+      "action": "screen_on"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "11:45",
+      "action": "screen_off"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "11:50",
+      "action": "screen_on"
+    },
+
+
+    {
+      "day" : "tuesday",
+      "hour" : "11:55",
+      "action": "screen_off"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "12:00",
       "action": "screen_on"
     }
   ]

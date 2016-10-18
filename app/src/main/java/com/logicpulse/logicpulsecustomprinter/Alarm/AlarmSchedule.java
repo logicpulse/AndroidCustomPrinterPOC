@@ -44,8 +44,8 @@ public class AlarmSchedule {
     private static Singleton mApp = Singleton.getInstance();
     private Context mContext;
     private Context mContextApplication;
-    //private int resourceId = R.raw.alarm_schedule;
-    private int resourceId = R.raw.alarm_schedule_test;
+    //private int resourceIdConfigFile = R.raw.alarm_schedule;
+    private int resourceIdConfigFile = R.raw.alarm_schedule_test;
 
     private AlarmScheduleTemplate mAlarmScheduleTemplate = null;
 
@@ -58,7 +58,7 @@ public class AlarmSchedule {
         mAlarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 
         //Init AlarmScheduleConfig
-        InputStream inputStream = Utils.getInputStreamFromRawResource(context, R.raw.alarm_schedule);
+        InputStream inputStream = Utils.getInputStreamFromRawResource(context, resourceIdConfigFile);
 
         String templateString = null;
 
