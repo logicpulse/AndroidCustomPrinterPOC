@@ -52,7 +52,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         //Utils.alarmStartPlay(context, ringtone);
 
         //Play Sound
-        MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.notification);
+        MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.notification_long);
         mediaPlayer.start();
 
         //PowerManager.WakeLock screenOn = ((PowerManager)context
