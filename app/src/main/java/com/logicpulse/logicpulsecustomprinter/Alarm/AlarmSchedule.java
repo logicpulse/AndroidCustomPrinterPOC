@@ -128,7 +128,7 @@ public class AlarmSchedule {
         //Get Today Calendar, used to add diferenceDayOfWeek
         Calendar today = Calendar.getInstance();
         today.setTime(new Date());
-        long todayMSec = today.getTimeInMillis();//today.get(Calendar.MILLISECOND);
+        long todayMSec = today.getTimeInMillis();
         //Formatters
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyy-MM-dd HH:mm:ss");
 
@@ -148,6 +148,7 @@ public class AlarmSchedule {
         //After Date ADD diferenceDayOfWeek, to work with YYYY/MM/DD
         calendar.add(Calendar.DAY_OF_MONTH, diferenceDayOfWeek);
 
+        //In in past schedule to next week
         // Check we aren't setting it in the past which would trigger it to fire instantly
         if (calendar.getTimeInMillis() < todayMSec) {
             calendar.add(Calendar.DAY_OF_YEAR, 7);
