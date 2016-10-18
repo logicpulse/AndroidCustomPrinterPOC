@@ -2,156 +2,156 @@
   "properties": [
     {
       "day" : "tuesday",
-      "hour" : "10:45",
-      "action": "screen_off"
+      "hour" : "12:20",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "10:46",
-      "action": "screen_off"
-    },
-
-    {
-      "day" : "tuesday",
-      "hour" : "10:47",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "11:48",
+      "hour" : "12:22",
       "action": "screen_off"
     },
 
     {
       "day" : "tuesday",
-      "hour" : "11:49",
-      "action": "screen_off"
+      "hour" : "12:24",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "11:50",
-      "action": "screen_off"
-    },
-
-    {
-      "day" : "tuesday",
-      "hour" : "11:51",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "11:52",
+      "hour" : "12:26",
       "action": "screen_off"
     },
 
     {
       "day" : "tuesday",
-      "hour" : "11:53",
-      "action": "screen_off"
+      "hour" : "12:28",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "11:54",
-      "action": "screen_off"
-    },
-
-    {
-      "day" : "tuesday",
-      "hour" : "11:55",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "11:56",
+      "hour" : "12:30",
       "action": "screen_off"
     },
 
     {
       "day" : "tuesday",
-      "hour" : "11:57",
-      "action": "screen_off"
+      "hour" : "12:32",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "11:58",
+      "hour" : "12:34",
+      "action": "screen_off"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "12:36",
+      "action": "screen_on"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "12:38",
+      "action": "screen_off"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "12:40",
+      "action": "screen_on"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "12:42",
+      "action": "screen_off"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "12:44",
+      "action": "screen_on"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "12:46",
       "action": "screen_off"
     },
 
 
     {
       "day" : "tuesday",
-      "hour" : "11:59",
-      "action": "screen_off"
+      "hour" : "12:48",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "12:00",
-      "action": "screen_off"
-    },
-
-    {
-      "day" : "tuesday",
-      "hour" : "12:01",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "12:02",
+      "hour" : "12:50",
       "action": "screen_off"
     },
 
     {
       "day" : "tuesday",
-      "hour" : "12:03",
-      "action": "screen_off"
+      "hour" : "12:52",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "12:04",
-      "action": "screen_off"
-    },
-
-    {
-      "day" : "tuesday",
-      "hour" : "12:05",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "12:06",
+      "hour" : "12:54",
       "action": "screen_off"
     },
 
     {
       "day" : "tuesday",
-      "hour" : "12:07",
-      "action": "screen_off"
+      "hour" : "12:56",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "12:08",
-      "action": "screen_off"
-    },
-
-    {
-      "day" : "tuesday",
-      "hour" : "12:09",
-      "action": "screen_off"
-    },
-    {
-      "day" : "tuesday",
-      "hour" : "12:10",
+      "hour" : "12:58",
       "action": "screen_off"
     },
 
     {
       "day" : "tuesday",
-      "hour" : "12:11",
-      "action": "screen_off"
+      "hour" : "13:00",
+      "action": "screen_on"
     },
     {
       "day" : "tuesday",
-      "hour" : "12:12",
+      "hour" : "13:02",
+      "action": "screen_off"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "13:04",
+      "action": "screen_on"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "13:06",
+      "action": "screen_off"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "13:08",
+      "action": "screen_on"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "13:10",
+      "action": "screen_off"
+    },
+
+    {
+      "day" : "tuesday",
+      "hour" : "13:12",
+      "action": "screen_on"
+    },
+    {
+      "day" : "tuesday",
+      "hour" : "13:14",
       "action": "screen_off"
     }
   ]

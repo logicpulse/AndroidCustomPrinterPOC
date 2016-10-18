@@ -102,25 +102,10 @@ public class AlarmSchedule {
             Calendar calendar = getCalendarDate(node.getHour());
             PendingIntent pendingIntent = getPendingIntent(node.getAction(), requestCode);
 
-            //Log.d(mApp.getTAG(), String.format("setUpAlarms: %s - %S - %S", dayOfWeek, calendar.getTime().toString(), pendingIntent.toString()));
+            Log.d(mApp.getTAG(), String.format("setUpAlarms: %s - %S - %S", dayOfWeek, calendar.getTime().toString(), pendingIntent.toString()));
 
             scheduleAlarm(dayOfWeek, calendar, pendingIntent, node.getAction());
         }
-
-        //Calendar calendarOff = new GregorianCalendar();
-        //calendarOff.setTimeInMillis(System.currentTimeMillis());
-        //calendarOff.set(Calendar.HOUR_OF_DAY, 14);
-        //calendarOff.set(Calendar.MINUTE, 38);
-        //calendarOff.set(Calendar.SECOND, 00);
-        //
-        //Calendar calendarOn = new GregorianCalendar();
-        //calendarOn.setTimeInMillis(System.currentTimeMillis());
-        //calendarOn.set(Calendar.HOUR_OF_DAY, 14);
-        //calendarOn.set(Calendar.MINUTE, 37);
-        //calendarOn.set(Calendar.SECOND, 00);
-        //
-        //scheduleAlarm(Calendar.MONDAY, calendarOff, mPendingIntentOff);
-        //scheduleAlarm(Calendar.MONDAY, calendarOn, mPendingIntentOn);
     }
 
     private void scheduleAlarm(int dayOfWeek, Calendar calendar, PendingIntent pendingIntent, String action) {
@@ -213,7 +198,7 @@ public class AlarmSchedule {
         Calendar result = Calendar.getInstance();
         result.setTimeInMillis(System.currentTimeMillis());
 
-        DateFormat formatter = new SimpleDateFormat("hh:mm");
+        DateFormat formatter = new SimpleDateFormat("HH:mm");
 
         try {
             Date date = formatter.parse(hour);
@@ -230,26 +215,31 @@ public class AlarmSchedule {
     //If you want to set multiple alarms (repeating or single), then you just need to create their PendingIntents with different requestCode. If requestCode is the same, then the new alarm will overwrite the old one.
     private PendingIntent getPendingIntent(String action, Integer requestCode) {
 
-        //Pending Intents On
-        Intent intentAlarmManagerOn = new Intent(mContextApplication, AlarmReceiver.class);
-        intentAlarmManagerOn.putExtra("mode", "screen_on");
-        PendingIntent pendingIntentOn = PendingIntent.getBroadcast(mContextApplication, requestCode, intentAlarmManagerOn, 0);
+////Pending Intents On
+//Intent intentAlarmManagerOn = new Intent(mContextApplication, AlarmReceiver.class);
+//intentAlarmManagerOn.putExtra("mode", "screen_on");
+//PendingIntent pendingIntentOn = PendingIntent.getBroadcast(mContextApplication, requestCode, intentAlarmManagerOn, 0);
+//
+////Pending Intents Off
+//Intent intentAlarmManagerOff = new Intent(mContextApplication, AlarmReceiver.class);
+//intentAlarmManagerOff.putExtra("mode", "screen_off");
+//PendingIntent pendingIntentOff = PendingIntent.getBroadcast(mContextApplication, requestCode, intentAlarmManagerOff, 0);
 
-        //Pending Intents Off
-        Intent intentAlarmManagerOff = new Intent(mContextApplication, AlarmReceiver.class);
-        intentAlarmManagerOff.putExtra("mode", "screen_off");
-        PendingIntent pendingIntentOff = PendingIntent.getBroadcast(mContextApplication, requestCode, intentAlarmManagerOff, 0);
-
-        PendingIntent result = null;
+        Intent intent = new Intent(mContextApplication, AlarmReceiver.class);
+        PendingIntent result;
 
         switch (action.toUpperCase()) {
             case "SCREEN_ON":
-                result = pendingIntentOn;
+                intent.putExtra("mode", "screen_on");
+                //result = pendingIntentOn;
                 break;
             case "SCREEN_OFF":
-                result = pendingIntentOff;
+                intent.putExtra("mode", "screen_off");
+                //result = pendingIntentOff;
                 break;
         }
+
+        result = PendingIntent.getBroadcast(mContextApplication, requestCode, intent, 0);
 
         return result;
     }
