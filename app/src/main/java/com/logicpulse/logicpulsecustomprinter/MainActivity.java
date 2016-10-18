@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
     //Alarm
-    private AlarmManager mAlarmManager;
-    private PendingIntent mPendingIntentAlarmManagerOn;
-    private PendingIntent mPendingIntentAlarmManagerOff;
+    //private AlarmManager mAlarmManager;
+    //private PendingIntent mPendingIntentAlarmManagerOn;
+    //private PendingIntent mPendingIntentAlarmManagerOff;
     //Usb
     private PendingIntent mPendingIntentUsbPermission;
     private UsbManager mUsbManager;
@@ -135,15 +135,15 @@ public class MainActivity extends AppCompatActivity {
         mPowerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
         //Alarm
-        mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        //mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         //Pending Intents On
-        Intent intentAlarmManagerOn = new Intent(MainActivity.this, AlarmReceiver.class);
-        intentAlarmManagerOn.putExtra("mode", "screenOn");
-        mPendingIntentAlarmManagerOn = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
+        //Intent intentAlarmManagerOn = new Intent(MainActivity.this, AlarmReceiver.class);
+        //intentAlarmManagerOn.putExtra("mode", "screenOn");
+        //mPendingIntentAlarmManagerOn = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
         //Pending Intents Off
-        Intent intentAlarmManagerOff = new Intent(MainActivity.this, AlarmReceiver.class);
-        intentAlarmManagerOff.putExtra("mode", "screenOff");
-        mPendingIntentAlarmManagerOff = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
+        //Intent intentAlarmManagerOff = new Intent(MainActivity.this, AlarmReceiver.class);
+        //intentAlarmManagerOff.putExtra("mode", "screenOff");
+        //mPendingIntentAlarmManagerOff = PendingIntent.getBroadcast(MainActivity.this, 0, intentAlarmManagerOn, 0);
 
         //Admin Mode
         mApp.setDevicePolicyManager((DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE));
@@ -713,22 +713,22 @@ public class MainActivity extends AppCompatActivity {
     //Wake Android Device up
     //GOOD POST: http://stackoverflow.com/questions/3621599/wake-android-device-up
 
-    private void setAlarm() {
-        //Calendar calendar = Calendar.getInstance();
-        //calendar.set(Calendar.HOUR_OF_DAY, timeHour);
-        //calendar.set(Calendar.MINUTE, timeMinute);
-        //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
-        //mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5 * 1000, mPendingIntentAlarmManagerOn);
+    //private void setAlarm() {
+    //    //Calendar calendar = Calendar.getInstance();
+    //    //calendar.set(Calendar.HOUR_OF_DAY, timeHour);
+    //    //calendar.set(Calendar.MINUTE, timeMinute);
+    //    //mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mPendingIntentAlarmManagerOn);
+    //    //mAlarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 5 * 1000, mPendingIntentAlarmManagerOn);
+    //
+    //    mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+    //            5 * 1000,
+    //            5 * 1000,
+    //            mPendingIntentAlarmManagerOn);
+    //}
 
-        mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                5 * 1000,
-                5 * 1000,
-                mPendingIntentAlarmManagerOn);
-    }
-
-    private void cancelAlarm() {
-        if (mAlarmManager != null) {
-            mAlarmManager.cancel(mPendingIntentAlarmManagerOn);
-        }
-    }
+    //private void cancelAlarm() {
+    //    if (mAlarmManager != null) {
+    //        mAlarmManager.cancel(mPendingIntentAlarmManagerOn);
+    //    }
+    //}
 }

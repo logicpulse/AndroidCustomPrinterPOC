@@ -3,7 +3,7 @@
     package="com.logicpulse.logicpulsecustomprinter">
 
     <!-- FEATURES -->
-    <!--The first step is to ask for permission to access the USB port, which is done in our manifest file:-->
+    <!--The first step is to ask for permission to access the USB port, which is done in our manifest file-->
     <uses-feature android:name="android.hardware.usb.host"/>
 
     <!-- USB -->

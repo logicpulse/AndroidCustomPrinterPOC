@@ -192,16 +192,19 @@ public class Utils {
             File dirRootFileSystem = Environment.getRootDirectory();
             File fileRootFileSystemPermission = new File(String.format("%s/etc/permissions/%s", dirRootFileSystem.getAbsolutePath(), permissionFile));
             File dirAppData = new File(context.getApplicationInfo().dataDir);
-            File fileAppDataPermission = new File(String.format("%s/files/%s", dirAppData.getAbsolutePath(), permissionFile));
+            File fileAppDataPermission = new File(String.format("%s/%s", dirAppData.getAbsolutePath(), permissionFile));
 
             if (!fileRootFileSystemPermission.exists()) {
                 //Copy to data dir First
-                copyFileFromAssets(context, permissionFile, String.format("%s/%s", dirAppData.getAbsolutePath(), "/files"));
+                //copyFileFromAssets(context, permissionFile, String.format("%s/%s", dirAppData.getAbsolutePath(), "/files"));
+                copyFileFromAssets(context, permissionFile, String.format("%s/%s", dirAppData.getAbsolutePath(), ""));
 
                 //TRICK IS: -c =  which tells su to execute the command that directly follows it on the same line
-                String cmd = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
+                String cmdCopy = String.format("cp %s %s", fileAppDataPermission, fileRootFileSystemPermission);
+                String cmdChmod = String.format("chmod  644 %s", fileRootFileSystemPermission);
                 executeHasSu("mount -o remount,rw /system");
-                executeHasSu(cmd);
+                executeHasSu(cmdCopy);
+                executeHasSu(cmdChmod);
                 executeHasSu("mount -o remount,ro /system");
 
                 if (fileRootFileSystemPermission.exists()) {
@@ -248,6 +251,7 @@ public class Utils {
     }
 
     public static void copyFileFromAssets(Context context, String filename, String outPath) {
+
         AssetManager assetManager = context.getAssets();
 
         InputStream in;
@@ -255,7 +259,7 @@ public class Utils {
 
         try {
             in = assetManager.open(filename);
-            String newFileName = outPath + "/" + filename;
+            String newFileName = String.format("%s%s", outPath, filename);
             out = new FileOutputStream(newFileName);
 
             byte[] buffer = new byte[1024];
