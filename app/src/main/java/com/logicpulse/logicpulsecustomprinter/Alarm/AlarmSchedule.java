@@ -97,11 +97,12 @@ public class AlarmSchedule {
             node = (AlarmScheduleTemplateNode) property;
 
             Integer dayOfWeek = getDayOfWeek(node.getDay());
-            Calendar calendar = getCalendarHour(node.getHour());
+            Calendar calendar = getCalendarDate(node.getHour());
             PendingIntent pendingIntent = getPendingIntent(node.getAction(), requestCode);
 
-            Log.d(mApp.getTAG(), String.format("setUpAlarms: %s - %S - %S", dayOfWeek, calendar.getTime().toString(), pendingIntent.toString()));
-            scheduleAlarm(dayOfWeek, calendar, pendingIntent);
+            //Log.d(mApp.getTAG(), String.format("setUpAlarms: %s - %S - %S", dayOfWeek, calendar.getTime().toString(), pendingIntent.toString()));
+
+            scheduleAlarm(dayOfWeek, calendar, pendingIntent, node.getAction());
         }
 
         //Calendar calendarOff = new GregorianCalendar();
@@ -120,17 +121,54 @@ public class AlarmSchedule {
         //scheduleAlarm(Calendar.MONDAY, calendarOn, mPendingIntentOn);
     }
 
-    private void scheduleAlarm(int dayOfWeek, Calendar calendar, PendingIntent pendingIntent) {
+    private void scheduleAlarm(int dayOfWeek, Calendar calendar, PendingIntent pendingIntent, String action) {
 
+        //Get Today Calendar, used to add diferenceDayOfWeek
+        Calendar today = Calendar.getInstance();
+        today.setTime(new Date());
+        long todayMSec = today.getTimeInMillis();//today.get(Calendar.MILLISECOND);
+        //Formatters
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyy-MM-dd HH:mm:ss");
+
+        //Get today current day of the week
+        Integer todayWeekOfDay = getCurrentDayOfTheWeek();
+        Integer diferenceDayOfWeek = todayWeekOfDay - dayOfWeek;
+
+        //Set DayOfTheWeek
         calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
+        //Add to today Day (diferenceDayOfWeek)
+        calendar.add(Calendar.DAY_OF_MONTH, diferenceDayOfWeek);
+        //Assign target YYYY/MM/DD to Calendar (Using diferenceDayOfWeek
+        calendar.set(Calendar.DAY_OF_MONTH, today.get(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.MONTH, today.get(Calendar.MONTH));
+        calendar.set(Calendar.YEAR, today.get(Calendar.YEAR));
+        //After Date ADD diferenceDayOfWeek, to work with YYYY/MM/DD
+        calendar.add(Calendar.DAY_OF_MONTH, diferenceDayOfWeek);
+
         // Check we aren't setting it in the past which would trigger it to fire instantly
-        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+        if (calendar.getTimeInMillis() < todayMSec) {
             calendar.add(Calendar.DAY_OF_YEAR, 7);
         }
 
-        mAlarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pendingIntent);
-        //Add to arrayPendingintents, else we override it, loosing references
+        Log.d(mApp.TAG, String.format(
+                "scheduleAlarm: [calendar]:%s > [dayOfWeek]:%d - [todayWeekOfDay]:%d = [diferenceDayOfWeek]:%d > [action]:%s"
+                , simpleDateFormat.format(calendar.getTime())
+                , dayOfWeek
+                , todayWeekOfDay
+                , diferenceDayOfWeek
+                , action
+        ));
+
+        //Set Alarm
+        mAlarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY * 7,
+                pendingIntent
+        );
+
+        //Add to arrayPendingintents, keep pending intents references in at hand
         arrayPendingintents.add(pendingIntent);
     }
 
@@ -167,12 +205,13 @@ public class AlarmSchedule {
         return result;
     }
 
-    private Calendar getCalendarHour(String hour) {
+    private Calendar getCalendarDate(String hour) {
 
         Calendar result = Calendar.getInstance();
         result.setTimeInMillis(System.currentTimeMillis());
 
         DateFormat formatter = new SimpleDateFormat("hh:mm");
+
         try {
             Date date = formatter.parse(hour);
             result.setTime(date);
@@ -208,6 +247,16 @@ public class AlarmSchedule {
                 result = pendingIntentOff;
                 break;
         }
+
+        return result;
+    }
+
+    private Integer getCurrentDayOfTheWeek() {
+
+        Integer result = -1;
+
+        Calendar calendar = Calendar.getInstance();
+        result = calendar.get(Calendar.DAY_OF_WEEK);
 
         return result;
     }
