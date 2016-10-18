@@ -231,13 +231,13 @@ public class AlarmSchedule {
 
         //Pending Intents On
         Intent intentAlarmManagerOn = new Intent(mContextApplication, AlarmReceiver.class);
-        intentAlarmManagerOn.putExtra("mode", "screenOn");
+        intentAlarmManagerOn.putExtra("mode", "screen_on");
         PendingIntent pendingIntentOn = PendingIntent.getBroadcast(mContextApplication, requestCode, intentAlarmManagerOn, 0);
 
         //Pending Intents Off
         Intent intentAlarmManagerOff = new Intent(mContextApplication, AlarmReceiver.class);
-        intentAlarmManagerOff.putExtra("mode", "screenOff");
-        PendingIntent pendingIntentOff = PendingIntent.getBroadcast(mContextApplication, 0, intentAlarmManagerOff, 0);
+        intentAlarmManagerOff.putExtra("mode", "screen_off");
+        PendingIntent pendingIntentOff = PendingIntent.getBroadcast(mContextApplication, requestCode, intentAlarmManagerOff, 0);
 
         PendingIntent result = null;
 

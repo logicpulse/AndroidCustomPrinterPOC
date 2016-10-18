@@ -32,14 +32,14 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
         String mode = intent.getStringExtra("mode"); //if it's a string you stored.
 
-        if (mode.toUpperCase().equals("screenOn".toUpperCase())) {
+        if (mode.toUpperCase().equals("screen_on".toUpperCase())) {
             Log.d(mApp.getTAG(), "AlarmReceiver.onReceive: screenOn");
 
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, "wake");
             wakeLock .acquire();
         }
-        else if (mode.toUpperCase().equals("screenOff".toUpperCase())) {
+        else if (mode.toUpperCase().equals("screen_off".toUpperCase())) {
             Log.d(mApp.getTAG(), "AlarmReceiver.onReceive: screenOff");
 
             mApp.getDevicePolicyManager().lockNow();

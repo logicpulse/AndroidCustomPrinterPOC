@@ -14,6 +14,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -462,6 +463,9 @@ public class MainActivity extends AppCompatActivity {
 
         //Repeat alarm everyday accurately (Alarm manager)
         //http://stackoverflow.com/questions/28001154/repeat-alarm-everyday-accurately-alarm-manager
+
+        MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.notification);
+        mediaPlayer.start();
 
         AlarmSchedule alarmSchedule = new AlarmSchedule(this);
         alarmSchedule.setUpAlarms();
