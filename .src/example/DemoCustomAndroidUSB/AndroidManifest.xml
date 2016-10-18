@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ************************************************************************************ -->
+<!-- *                                                                                  * -->
+<!-- * This document contains programming examples.                                     * -->
+<!-- *                                                                                  * -->
+<!-- * CUSTOM S.p.A. grants you a nonexclusive copyright license to use                 * -->
+<!-- * all programming code examples from which you can generate similar                * -->
+<!-- * function tailored to your own specific needs.                                    * -->
+<!-- *                                                                                  * -->
+<!-- * All sample code is provided by CUSTOM S.p.A. for illustrative purposes           * -->
+<!-- * only. These examples have not been thoroughly tested under all conditions.       * -->
+<!-- * CUSTOM S.p.A., therefore, cannot guarantee or imply reliability,                 * -->
+<!-- * serviceability, or function of these programs.                                   * -->
+<!-- *                                                                                  * -->
+<!-- * In no event shall CUSTOM S.p.A. be liable for any direct, indirect,              * -->
+<!-- * incidental, special, exemplary, or consequential damages (including, but not     * -->
+<!-- * limited to, procurement of substitute goods or services; loss of use, data,      * -->
+<!-- * or profits; or business interruption) however caused and on any theory of        * -->
+<!-- * liability, whether in contract, strict liability, or tort (including negligence  * -->
+<!-- * or otherwise) arising in any way out of the use of this software, even if        * -->
+<!-- * advised of the possibility of such damage.                                       * -->
+<!-- *                                                                                  * -->
+<!-- * All programs contained herein are provided to you "as is" without any            * -->
+<!-- * warranties of any kind.                                                          * -->
+<!-- * The implied warranties of non-infringement, merchantability and fitness for a    * -->
+<!-- * particular purpose are expressly disclaimed.                                     * -->
+<!-- *                                                                                  * -->
+<!-- ************************************************************************************ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="custom.api.android.demo.usb"
+    android:versionCode="1"
+    android:versionName="1.0" >
+        
+    <uses-sdk android:minSdkVersion="8"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name" >
+        <activity
+            android:name=".DemoCustomAndroidUSBActivity"
+            android:label="@string/app_name" 
+            android:launchMode="singleTask">
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            
+            <!-- USB -->
+            <intent-filter>
+                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+    
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" android:resource="@xml/device_filter" />
+             <!-- USB END -->
+            
+        </activity>
+    </application>
+
+</manifest>

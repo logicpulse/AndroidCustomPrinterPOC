@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ************************************************************************************ -->
+<!-- *                                                                                  * -->
+<!-- * This document contains programming examples.                                     * -->
+<!-- *                                                                                  * -->
+<!-- * CUSTOM S.p.A. grants you a nonexclusive copyright license to use                 * -->
+<!-- * all programming code examples from which you can generate similar                * -->
+<!-- * function tailored to your own specific needs.                                    * -->
+<!-- *                                                                                  * -->
+<!-- * All sample code is provided by CUSTOM S.p.A. for illustrative purposes           * -->
+<!-- * only. These examples have not been thoroughly tested under all conditions.       * -->
+<!-- * CUSTOM S.p.A., therefore, cannot guarantee or imply reliability,                 * -->
+<!-- * serviceability, or function of these programs.                                   * -->
+<!-- *                                                                                  * -->
+<!-- * In no event shall CUSTOM S.p.A. be liable for any direct, indirect,              * -->
+<!-- * incidental, special, exemplary, or consequential damages (including, but not     * -->
+<!-- * limited to, procurement of substitute goods or services; loss of use, data,      * -->
+<!-- * or profits; or business interruption) however caused and on any theory of        * -->
+<!-- * liability, whether in contract, strict liability, or tort (including negligence  * -->
+<!-- * or otherwise) arising in any way out of the use of this software, even if        * -->
+<!-- * advised of the possibility of such damage.                                       * -->
+<!-- *                                                                                  * -->
+<!-- * All programs contained herein are provided to you "as is" without any            * -->
+<!-- * warranties of any kind.                                                          * -->
+<!-- * The implied warranties of non-infringement, merchantability and fitness for a    * -->
+<!-- * particular purpose are expressly disclaimed.                                     * -->
+<!-- *                                                                                  * -->
+<!-- ************************************************************************************ -->
+  
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="fill_parent"
+ android:layout_height="fill_parent">
+  
+<TableLayout
+    android:id="@+id/tableLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"    
+	android:focusableInTouchMode="true">
+	    	    
+    <!-- just draw a red line -->
+    <View
+        android:layout_height="2dip"
+        android:background="#FF0000" />
+	
+    <TextView
+	    android:id="@+id/Text1"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/TextDevices" />
+    
+    <ListView
+        android:id="@+id/listViewDevices"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp" >
+    </ListView>
+	
+    <!-- blank spaces -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="30dp">
+    </View>
+	    
+    <!-- just draw a red line -->
+    <View
+        android:layout_height="2dip"
+        android:background="#FF0000" />
+	
+    <TextView
+	    android:id="@+id/Text2"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/TextPrintPicture"/>
+	    
+    <Button
+        android:id="@+id/buttonSelectPicture"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"        
+        android:onClick="onSelectPictureClick"
+        android:text="@string/selpicture" />
+	
+    <Button
+        android:id="@+id/buttonPrintPicture"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onPrintPictureClick"                    
+        android:text="@string/printpicture" />
+	   
+    <!-- blank spaces -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="30dp">
+    </View>
+	    
+    <!-- just draw a red line -->
+    <View
+        android:layout_height="2dip"
+        android:background="#FF0000" />
+	
+    <TextView
+	    android:id="@+id/Text3"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/TextPrintText"/>
+	   
+    <EditText
+        android:id="@+id/EditTextToPrint"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"            
+        android:inputType="text|textNoSuggestions"        
+        android:text="@string/sampletext" >            
+    </EditText>
+	
+    <Button
+        android:id="@+id/buttonPrintText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"            
+        android:onClick="onPrintText"        
+        android:text="@string/printtext" />
+	        
+	<!-- blank spaces -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="30dp">
+    </View>
+	    
+   	<!-- just draw a red line -->
+    <View
+        android:layout_height="2dip"
+        android:background="#FF0000" />
+	
+    <TextView
+	    android:id="@+id/Text4"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/TextStatus"/>    
+	        
+   <TextView
+       android:id="@+id/textPrinterName"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:textSize="15sp"  
+       android:text=""                   
+       android:visibility="invisible"/>
+	
+   <CheckBox
+       android:id="@+id/checkBoxNOPAPER"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:focusable = "true" 
+       android:clickable= "false"            
+       android:textSize="15sp"       
+       android:visibility="invisible"
+       android:text="@string/stsNoPaper" />
+	   
+   <CheckBox
+       android:id="@+id/checkBoxROLLING"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:focusable = "true" 
+       android:clickable= "false"            
+       android:textSize="15sp"       
+       android:visibility="invisible"
+       android:text="@string/stsRolling" />
+	   
+   <CheckBox
+       android:id="@+id/checkBoxLF"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:focusable = "true" 
+       android:clickable= "false"            
+       android:textSize="15sp"       
+       android:visibility="invisible"
+       android:text="@string/stsLF" />    	
+	
+   <!-- blank spaces -->
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="30dp">
+    </View>
+		
+   <Button
+	   android:id="@+id/buttonExit"
+	   android:layout_width="fill_parent"
+	   android:layout_height="wrap_content"         
+	   android:onClick="onExit"        
+	   android:text="@string/exit" />
+
+</TableLayout>
+
+</ScrollView>

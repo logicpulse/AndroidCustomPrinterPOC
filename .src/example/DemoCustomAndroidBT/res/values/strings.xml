@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ************************************************************************************ -->
+<!-- *                                                                                  * -->
+<!-- * This document contains programming examples.                                     * -->
+<!-- *                                                                                  * -->
+<!-- * CUSTOM S.p.A. grants you a nonexclusive copyright license to use                 * -->
+<!-- * all programming code examples from which you can generate similar                * -->
+<!-- * function tailored to your own specific needs.                                    * -->
+<!-- *                                                                                  * -->
+<!-- * All sample code is provided by CUSTOM S.p.A. for illustrative purposes           * -->
+<!-- * only. These examples have not been thoroughly tested under all conditions.       * -->
+<!-- * CUSTOM S.p.A., therefore, cannot guarantee or imply reliability,                 * -->
+<!-- * serviceability, or function of these programs.                                   * -->
+<!-- *                                                                                  * -->
+<!-- * In no event shall CUSTOM S.p.A. be liable for any direct, indirect,              * -->
+<!-- * incidental, special, exemplary, or consequential damages (including, but not     * -->
+<!-- * limited to, procurement of substitute goods or services; loss of use, data,      * -->
+<!-- * or profits; or business interruption) however caused and on any theory of        * -->
+<!-- * liability, whether in contract, strict liability, or tort (including negligence  * -->
+<!-- * or otherwise) arising in any way out of the use of this software, even if        * -->
+<!-- * advised of the possibility of such damage.                                       * -->
+<!-- *                                                                                  * -->
+<!-- * All programs contained herein are provided to you "as is" without any            * -->
+<!-- * warranties of any kind.                                                          * -->
+<!-- * The implied warranties of non-infringement, merchantability and fitness for a    * -->
+<!-- * particular purpose are expressly disclaimed.                                     * -->
+<!-- *                                                                                  * -->
+<!-- ************************************************************************************ -->
+
+<resources>
+    
+    <string name="app_name">DemoCustomAndroidBT</string>
+    <string name="selpicture">Select Picture to Print&#8230;</string>
+    <string name="printpicture">Print Picture</string>
+    <string name="printtext">Print Text</string>
+    <string name="sampletext">*** Text ***</string>
+    <string name="exit">EXIT</string>
+    
+    <string name="stsNoPaper">No Paper</string>
+    <string name="stsRolling">Paper Rolling</string>
+    <string name="stsLF">LF Key Pressed</string>
+    
+    <string name="TextDevices">Devices List:</string>
+    <string name="TextPrintPicture">Picture:</string>
+    <string name="TextPrintText">Text:</string>
+    <string name="TextStatus">Printer Status:</string>
+
+</resources>
