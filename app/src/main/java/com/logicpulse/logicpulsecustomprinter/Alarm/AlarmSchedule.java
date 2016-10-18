@@ -44,6 +44,8 @@ public class AlarmSchedule {
     private static Singleton mApp = Singleton.getInstance();
     private Context mContext;
     private Context mContextApplication;
+    //private int resourceId = R.raw.alarm_schedule;
+    private int resourceId = R.raw.alarm_schedule_test;
 
     private AlarmScheduleTemplate mAlarmScheduleTemplate = null;
 
