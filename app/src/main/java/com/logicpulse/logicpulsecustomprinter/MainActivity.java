@@ -1,6 +1,5 @@
 package com.logicpulse.logicpulsecustomprinter;
 
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.BroadcastReceiver;
@@ -47,6 +46,7 @@ import it.custom.printer.api.android.CustomException;
 
 import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
+import static android.hardware.usb.UsbManager.ACTION_USB_DEVICE_DETACHED;
 import static android.os.Debug.isDebuggerConnected;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,9 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 
     public String mPackageName;
-    //private CustomPrinterDevice mCustomPrinterDevice;
-    private IThermalPrinter mCustomPrinterDevice;
-    //private Boolean mUseCustomPrinter = true;
+    private IThermalPrinter mPrinterDevice;
     private Ringtone mRingtone;
     private Ticket mTicket;
     private View mViewActivityMain;
@@ -110,17 +108,19 @@ public class MainActivity extends AppCompatActivity {
         mPackageName = getApplicationContext().getPackageName();
 
         //init Network ADB only if not debugger attached, else we close adb, and debug
-        if (!isDebuggerConnected()) {
+        if (Utils.isRooted() && !isDebuggerConnected()) {
             Utils.enableNetworkADB(true);
         }
 
-        //init Permissions
-        final Context finalContext = this;
-        runOnUiThread(new Runnable() {
-            public void run() {
-                Utils.copyFileHardwareUsbHostToSystemPermission(finalContext);
-            }
-        });
+        //Init Permissions - Copy android.hardware.usb.host.xml to /system/etc/permissions
+        if (Utils.isRooted()) {
+            final Context finalContext = this;
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Utils.copyFileHardwareUsbHostToSystemPermission(finalContext);
+                }
+            });
+        }
 
         //KeepScreenOn WakeLock
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
@@ -198,8 +198,8 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(mPowerManagerReceiver);
 
         try {
-            if (mCustomPrinterDevice != null) {
-                mCustomPrinterDevice.close();
+            if (mPrinterDevice != null) {
+                mPrinterDevice.close();
             }
             Utils.alarmStopPlay(mRingtone);
         } catch (Throwable throwable) {
@@ -282,7 +282,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void registerBroadcastReceivers() {
         try {
-
             //Setup PendingIntent
             mPendingIntentUsbPermission = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
             IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
@@ -322,19 +321,18 @@ public class MainActivity extends AppCompatActivity {
                 //        Log.e(MainActivity.TAG, "ACTION_USB_DEVICE_ATTACHED");
                 //        mUsbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 //        //init CustomPrinterDevice
-                //        //mCustomPrinterDevice = new CustomPrinterDevice();
-                //        mCustomPrinterDevice.init(context, mUsbDevice, mViewActivityMain, mRingtone);
+                //        //mPrinterDevice = new CustomPrinterDevice();
+                //        mPrinterDevice.init(context, mUsbDevice, mViewActivityMain, mRingtone);
                 //    }
-            } else if (mUsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+            } else if (ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 synchronized (this) {
                     Log.e(mApp.getTAG(), "ACTION_USB_DEVICE_DETACHED");
                     runOnUiThread(new Runnable() {
                         public void run() {
                             try {
                                 //Close Application
-                                if (mCustomPrinterDevice != null) {
-                                    //mCustomPrinterDevice.close();
-                                    mCustomPrinterDevice.close();
+                                if (mPrinterDevice != null) {
+                                    mPrinterDevice.close();
                                 }
                             } catch (Throwable throwable) {
                                 throwable.printStackTrace();
@@ -367,16 +365,16 @@ public class MainActivity extends AppCompatActivity {
 
     //private void actionOpenDevice() {
     //    //Open it
-    //    mCustomPrinterDevice.openDevice();
+    //    mPrinterDevice.openDevice();
     //}
 
     private void actionTestDevicePrintText() {
-        mCustomPrinterDevice.testPrintText(PRINT_TEXT);
+        mPrinterDevice.testPrintText(PRINT_TEXT);
     }
 
     private void actionTestDevicePrintImage() {
         InputStream inputStream = Utils.getInputStreamFromRawResource(this, R.raw.image);
-        mCustomPrinterDevice.testPrintImage(inputStream);
+        mPrinterDevice.testPrintImage(inputStream);
     }
 
     private void actionTestAlarmStart() {
@@ -391,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Context context = this;
 
-        if (mCustomPrinterDevice != null) {
+        if (mPrinterDevice != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -401,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             if (mTicket == null) {
                                 //init Ticket
-                                mTicket = new Ticket(context, mCustomPrinterDevice);
+                                mTicket = new Ticket(context, mPrinterDevice);
                             }
                             try {
                                 //Print
@@ -581,8 +579,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(mApp.getTAG(), String.format("ProductId: %d / VendorId: %d", mUsbDevice.getProductId(), mUsbDevice.getVendorId()));
 
                         //init CustomPrinterDevice
-                        mCustomPrinterDevice = new CustomPrinterDevice();
-                        mCustomPrinterDevice.init(this, mUsbDevice, mViewActivityMain, mRingtone);
+                        mPrinterDevice = new CustomPrinterDevice();
+                        mPrinterDevice.init(this, mUsbDevice, mViewActivityMain, mRingtone);
                     }
                     //OtherPrinters
                     else {
