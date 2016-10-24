@@ -25,6 +25,7 @@ import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,6 +107,19 @@ public class Utils {
             Log.e(mApp.getTAG(), "File Reading Error", e);
         }
         return null;
+    }
+
+    public static InputStream getInputStreamFromFile(String filePath) throws Exception {
+        File fl = new File(filePath);
+        FileInputStream result = new FileInputStream(fl);
+        return result;
+    }
+
+    public static String getStringFromFile(InputStream stream, String charsetName) throws Exception {
+        String result = getStringFromInputStream(stream, "UTF-8");
+        //Close all streams
+        stream.close();
+        return result;
     }
 
     public static void alarmStartPlay(Context context, Ringtone ringtone) {
