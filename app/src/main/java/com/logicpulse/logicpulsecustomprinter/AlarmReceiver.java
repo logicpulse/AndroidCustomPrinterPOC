@@ -34,12 +34,17 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK|PowerManager.ACQUIRE_CAUSES_WAKEUP, "wake");
-            wakeLock .acquire();
+            wakeLock.acquire();
         }
         else if (mode.toUpperCase().equals("screen_off".toUpperCase())) {
             Log.d(mApp.getTAG(), "AlarmReceiver.onReceive: screenOff");
 
-            mApp.getDevicePolicyManager().lockNow();
+            if (mApp.getMainActivity().isActiveAdmin()) {
+                mApp.getDevicePolicyManager().lockNow();
+            }
+            else {
+                Log.d(mApp.getTAG(), "Error: Cant LockDown device. First enable DeviceAdmin");
+            }
         }
 
         //Log.d(MainActivity.TAG, "AlarmReceiver.onReceive: Start Activity");

@@ -683,7 +683,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Helper to determine if we are an active admin
      */
-    private boolean isActiveAdmin() {
+    public boolean isActiveAdmin() {
         return mApp.getDevicePolicyManager().isAdminActive(mApp.getDeviceAdmin());
     }
 
