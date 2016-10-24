@@ -9,6 +9,12 @@ import com.logicpulse.logicpulsecustomprinter.App.Singleton;
 
 /**
  * Created by mario.monteiro on 07/10/2016.
+ *
+ * Device Administration
+ * https://developer.android.com/guide/topics/admin/device-admin.html
+ *
+ * DeviceAdminReceiver
+ * https://developer.android.com/reference/android/app/admin/DeviceAdminReceiver.html
  */
 
 public class DeviceAdmin extends DeviceAdminReceiver {
