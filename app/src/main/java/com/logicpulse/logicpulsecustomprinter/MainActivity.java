@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     private static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
+
+    //Device Admin
     private static final int REQUEST_CODE_ENABLE_ADMIN = 1;
 
     public String mPackageName;
@@ -419,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
         if (!mApp.getDeviceAdminActive()) {
             // Launch the activity to have the user enable our admin.
             Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mApp.getDeviceAdminActive());
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mApp.getDeviceAdmin());
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, this.getString(R.string.add_admin_extra_app_text));
             startActivityForResult(intent, REQUEST_CODE_ENABLE_ADMIN);
             // return false - don't update checkbox until we're really active

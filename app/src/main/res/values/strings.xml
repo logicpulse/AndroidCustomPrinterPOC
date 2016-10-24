@@ -17,7 +17,7 @@
     <string name="action_test_alarm_stop_play">Alarm Stop</string>
     <string name="action_test_ticket">Test Ticket</string>
     <string name="action_toggle_admin_mode">Toggle Admin Mode</string>
-    <string name="action_test_screen_off">Test Screen Off</string>
+    <string name="action_test_screen_on_off">Test Screen On/Off</string>
 
     <string name="stsConnError">Printer Connection Error</string>
     <string name="stsNoPaper">No Paper</string>
