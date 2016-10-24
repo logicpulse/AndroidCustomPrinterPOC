@@ -115,10 +115,15 @@ public class Utils {
         return result;
     }
 
-    public static String getStringFromFile(InputStream stream, String charsetName) throws Exception {
-        String result = getStringFromInputStream(stream, "UTF-8");
+    public static String getStringFromFile(String filePath) throws Exception {
+        return getStringFromFile(filePath, "UTF-8");
+    }
+
+    public static String getStringFromFile(String filePath, String charsetName) throws Exception {
+        InputStream inputStream = getInputStreamFromFile(filePath);
+        String result = getStringFromInputStream(inputStream, charsetName);
         //Close all streams
-        stream.close();
+        inputStream.close();
         return result;
     }
 
