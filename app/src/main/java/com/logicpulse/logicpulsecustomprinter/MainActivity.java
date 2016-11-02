@@ -247,32 +247,36 @@ public class MainActivity extends AppCompatActivity {
         //    actionOpenDevice();
         //    return true;
         //}
-        if (id == R.id.action_test_device_print_text) {
+        else if (id == R.id.action_test_device_print_text) {
             actionTestDevicePrintText();
             return true;
         }
-        if (id == R.id.action_test_device_print_image) {
+        else if (id == R.id.action_test_device_print_image) {
             actionTestDevicePrintImage();
             return true;
         }
-        if (id == R.id.action_test_alarm_start_play) {
+        else if (id == R.id.action_test_alarm_start_play) {
             actionTestAlarmStart();
             return true;
         }
-        if (id == R.id.action_test_alarm_stop_play) {
+        else if (id == R.id.action_test_alarm_stop_play) {
             actionTestAlarmStop();
             return true;
         }
-        if (id == R.id.action_test_ticket) {
+        else if (id == R.id.action_test_ticket) {
             actionTestTicket();
             return true;
         }
-        if (id == R.id.action_toggle_admin_mode) {
+        else if (id == R.id.action_toggle_admin_mode) {
             actionToggleAdmin();
             return true;
         }
-        if (id == R.id.action_test_screen_off) {
+        else if (id == R.id.action_test_screen_off) {
             actionTestScreenOff();
+            return true;
+        }
+        else if (id == R.id.action_quit) {
+            finish();
             return true;
         }
 
